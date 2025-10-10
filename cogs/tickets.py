@@ -496,7 +496,8 @@ a:hover {{ text-decoration: underline; }}
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(html)
 
-        public_url = push_to_github(file_path, f"transcripts/{channel.name}.html")
+        file_name_on_github = os.path.join("transcripts", os.path.basename(file_path))
+        public_url = push_to_github(file_path, file_name_on_github)
 
         embed = discord.Embed(
             title="Ticket Closed",
