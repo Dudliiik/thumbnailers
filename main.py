@@ -14,8 +14,6 @@ from flask import Flask, send_from_directory
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-
-
 # ---------------- Discord bot ----------------
 
 intents = discord.Intents.default()
