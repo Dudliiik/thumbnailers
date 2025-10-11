@@ -2,12 +2,11 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import asyncio
-import io
 import os
 import re
-from discord.ui import View, Button
+import time
+from discord.ui import Button
 from github import Github
-import aiohttp  # <- new import
 
 # Close Button ---------------------------------
 
@@ -298,20 +297,6 @@ def is_ticket_channel(channel: discord.abc.GuildChannel):
     ticket_prefixes = ["partnership-", "support-", "role-request-"]
     return any(channel.name.startswith(prefix) for prefix in ticket_prefixes)
 
-# ---------------- GitHub Pages Wait Helper ----------------
-
-async def wait_for_github_file(url, timeout=15):
-    """Wait until the GitHub Pages file is accessible (HTTP 200)."""
-    async with aiohttp.ClientSession() as session:
-        for _ in range(timeout * 2):  # check every 0.5s up to `timeout` seconds
-            try:
-                async with session.get(url) as resp:
-                    if resp.status == 200:
-                        return True
-            except:
-                pass
-            await asyncio.sleep(0.5)
-    return False
 
 class TicketDropdownView(discord.ui.View):
     def __init__(self, bot):
@@ -377,12 +362,10 @@ class Tickets(commands.Cog):
             return
 
         os.makedirs("transcripts", exist_ok=True)
-        base_name = f"{channel.name}.html"
+        timestamp = int(time.time())
+        base_name = f"{channel.name}_{timestamp}.html"
         file_path = os.path.join("transcripts", base_name)
-        counter = 1
-        while os.path.exists(file_path):
-            file_path = os.path.join("transcripts", f"{channel.name}_{counter}.html")
-            counter += 1
+
 
         html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -510,12 +493,7 @@ a:hover {{ text-decoration: underline; }}
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(html)
 
-        file_name_on_github = os.path.join("transcripts", os.path.basename(file_path)).replace("\\", "/")
-        public_url = push_to_github(file_path, f"transcripts/{channel.name}_{counter}.html")
-
-        # Wait until GitHub Pages file is actually accessible
-        if public_url:
-            await wait_for_github_file(public_url)
+        public_url = push_to_github(file_path, f"transcripts/{base_name}.html")
 
         embed = discord.Embed(
             title="Ticket Closed",
@@ -529,3 +507,4 @@ a:hover {{ text-decoration: underline; }}
 
 async def setup(bot):
     await bot.add_cog(Tickets(bot))
+    

@@ -4,6 +4,7 @@ from discord import app_commands
 from dotenv import load_dotenv
 import os
 import asyncio
+import json
 from threading import Thread
 from cogs.tickets import CloseTicketView
 from flask import Flask, send_from_directory
@@ -43,14 +44,43 @@ async def shutdown(interaction: discord.Interaction):
     await interaction.response.send_message("🛑 Shut down the bot...", ephemeral=False)
     await client.close()
 
-#------------------------ VIP+ ------------------------
+# ---------------- VIP+ Persistent Boost Tracking ----------------
+
+BOOST_FILE = "boost_counts.json"
+
+def load_boosts():
+    if os.path.exists(BOOST_FILE):
+        with open(BOOST_FILE, "r") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return {}
+    return {}
+
+
+def save_boosts(data):
+    with open(BOOST_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+boost_counts = load_boosts()
 
 @client.event
-async def on_member_update(before, after):
-    if getattr(before, "premium_subscription_count", 0) < 2 and getattr(after, "premium_subscription_count", 0) >= 2:
+async def on_member_update(before: discord.Member, after: discord.Member):
+
+    if before.premium_since is None and after.premium_since is not None:
+        user_id = str(after.id)
+        boost_counts[user_id] = boost_counts.get(user_id, 0) + 1
+        save_boosts(boost_counts)  
+
+        if boost_counts[user_id] >= 2:
+            role = discord.utils.get(after.guild.roles, name="VIP+")
+            if role and role not in after.roles:
+                await after.add_roles(role)
+
+    elif before.premium_since is not None and after.premium_since is None:
         role = discord.utils.get(after.guild.roles, name="VIP+")
-        if role:
-            await after.add_roles(role)
+        if role and role in after.roles:
+            await after.remove_roles(role)
 
 # ---------------- Bot event ----------------
 
@@ -65,18 +95,13 @@ async def on_ready():
 
     artist_group = Artist()
     roles_group = Roles()
-    client.tree.add_command(artist_group, guild=guild)
-    client.tree.add_command(roles_group, guild=guild)
-    await client.tree.sync(guild=guild)
-
+    client.tree.add_command(artist_group)
+    client.tree.add_command(roles_group)
     synced = await client.tree.sync()
+
     print(f"Synced commands - {len(synced)}")
 
     client.add_view(CloseTicketView())
-
-
-
-
 
 
 # ----------------------- /role give command  ----------------------- 
@@ -117,10 +142,10 @@ class Roles(app_commands.Group):
         description="Adds a PSD to the VIP channels."
 )
 @discord.app_commands.checks.has_permissions(manage_messages=True)
-async def psd(interaction, link: str, image: discord.Attachment, user: discord.User):
+async def psd(interaction:discord.Interaction, link: str, image: discord.Attachment, user: discord.User):
     embed = discord.Embed(title=link)
     embed.set_image(url=image.url)
-    embed.set_footer(text=f"Provided by {user}"),
+    embed.set_footer(text=f"Provided by {user}")
     await interaction.response.send_message(embed=embed)
 
 # ------------------ /purge command ----------------------------
@@ -277,7 +302,7 @@ ARTISTS_INFO = {
     821025628127756320: {  # Ninja
         "name": "Ninjanmy",
         "description": "Hi there! I’m a passionate and results-driven thumbnail designer with over 2 years of experience creating scroll-stopping visuals that drive clicks and engagement. My focus is on clean, bold, and highly optimized designs that make your content stand out in any feed.",
-        "image": "",
+        "image": "https://media.discordapp.net/attachments/1380545516873711676/1425120399301152918/IMG_9242.png?ex=68ebb44c&is=68ea62cc&hm=742c429af35c9cb17f66d8eac280a93fc889180a32c02655d20b9433e95c3a76&=&format=webp&quality=lossless&width=1232&height=1232",
         "links": {
             "Portfolio": "https://ninjanmy.carrd.co/",
             "Behance": "https://www.behance.net/ninjanmy-zbxri",
@@ -425,7 +450,7 @@ def home():
     return "Bot is running"
 
 def run_web():
-    app.run(host="0.0.0.0", port=10000)
+    app.run(host="0.0.0.0", port=10000, debug=False)
 
                            
 # ---------------- Run bot + web ----------------
@@ -435,7 +460,7 @@ async def main():
         await load_cogs()
         await client.start(TOKEN)
 
-
 if __name__ == "__main__":
-    Thread(target=run_web).start()
+    flask_thread = Thread(target=run_web, daemon=True)
+    flask_thread.start()
     asyncio.run(main())
