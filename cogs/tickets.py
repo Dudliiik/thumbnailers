@@ -31,7 +31,6 @@ GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 TRANSCRIPT_FOLDER = os.path.join(os.getcwd(), "transcripts") 
 os.makedirs(TRANSCRIPT_FOLDER, exist_ok=True) 
-TRANSCRIPT_CHANNEL_ID = 1419364607918739616
 
 async def get_member_safe(guild, user_id):
     member = guild.get_member(user_id)
@@ -237,7 +236,8 @@ class TicketCategory(discord.ui.Select):
 
 # ----------------- Opened Ticket embed ------------------
 
-        transcript_channel = self.bot.get_channel(TRANSCRIPT_CHANNEL_ID)
+        guild = channel.guild
+        transcript_channel = discord.utils.get(guild.text_channels, name="transcripts")
         if transcript_channel:
             transcript_embed = discord.Embed(
                 title="Ticket Created",
@@ -356,9 +356,10 @@ class Tickets(commands.Cog):
 
     # ----------- Generate Transcript -----------
     async def generate_transcript(self, channel: discord.TextChannel, executor: discord.Member):
-        transcript_channel = self.bot.get_channel(TRANSCRIPT_CHANNEL_ID)
+        guild = channel.guild
+        transcript_channel = discord.utils.get(guild.text_channels, name="transcripts")
         if transcript_channel is None:
-            print(f"Transcript channel with ID {TRANSCRIPT_CHANNEL_ID} not found.")
+            print(f"Transcript channel not found.")
             return
 
         os.makedirs("transcripts", exist_ok=True)

@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from discord import app_commands
+from discord import app_commands, Embed, Colour
 from dotenv import load_dotenv
 import os
 import asyncio
@@ -19,6 +19,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
 client = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
@@ -88,8 +89,6 @@ GUILD_ID = 1415013619246039082
 
 @client.event
 async def on_ready():
-    print(f"✅ Logged in as {client.user}")
-
     guild = discord.Object(id=GUILD_ID)
     client.tree.clear_commands(guild=guild)
 
@@ -97,11 +96,9 @@ async def on_ready():
     roles_group = Roles()
     client.tree.add_command(artist_group)
     client.tree.add_command(roles_group)
+
     synced = await client.tree.sync()
-
     print(f"Synced commands - {len(synced)}")
-
-    client.add_view(CloseTicketView())
 
 
 # ----------------------- /role give command  ----------------------- 
@@ -343,6 +340,12 @@ ARTISTS_INFO = {
     },
 }
 
+ARTIST_ROLES = {
+    "Professional Artist": 1424364871134482482,
+    "Artist+": 1424364849751920741,
+    "Artist": 1424364827551338666
+}
+
 class Artist(app_commands.Group):
     def __init__(self):
         super().__init__(name="artist", description="Artist Commands")
@@ -378,63 +381,46 @@ class Artist(app_commands.Group):
 # --------------------------------------------------------------------------
 
     @app_commands.command(
-            name="list",
-            description="Shows a list of our Artists.",
+    name="list",
+    description="Shows a list of our Artists.",
     )
-    async def artists(self, interaction: discord.Interaction):
+    async def list(self, interaction: discord.Interaction):
+        guild = interaction.client.get_guild(GUILD_ID)
+
+        all_members = []
+        async for member in guild.fetch_members(limit=None):
+            all_members.append(member)
+
+        embed_description = ""
+        for role_name, role_id in ARTIST_ROLES.items():
+            role = guild.get_role(role_id)
+            if not role:
+                continue
+
+            members_with_role = [f"<@{m.id}>" for m in all_members if role in m.roles]
+
+            if not members_with_role:
+                embed_description += f"{role.mention}\nNo members yet.\n\n"
+                continue
+
+            lines = []
+            for i in range(0, len(members_with_role), 2):
+                pair = members_with_role[i:i+2] 
+                lines.append(" | ".join(pair))
+
+            member_list_str = "\n- ".join(lines)  
+            embed_description += f"{role.mention}\n- {member_list_str}\n\n"
+
         embed = discord.Embed(
-                title="🎨 Our Artists",
-                description=(
-                    "**<@&1424364827551338666>**\n"
-                    "- <@1197647902424699010>"
-                    " | <@1191322601730093117>\n"
-                    "- <@616597164684083229>"
-                    " | <@886695494309515315>\n"
-                    "- <@944650839014916117>"
-                    " | <@859500303186657300>\n"
-                    "- <@790963861137653801>"
-                    " | <@1310052066030387250>\n"
-                    "- <@1076600242050453585>"
-                    " | <@841416308763263006>\n"
-                    "- <@905737339467366440>"
-                    " | <@1058413473714929686>\n"
-                    "- <@1095163524076023849>"
-                    " | <@1133057026327597107>\n"
-                    "- <@991592515302080532>"
-                    " | <@784069401120735243>\n"
-                    "- <@973113260834435123>"
-                    " | <@559080909152714764>\n"
-                    "- <@1146137221708128376>"
-                    " | <@271989502384406538>\n"
-                    "- <@1237080988715323594>"
-                    " | <@975648896359465010>\n"
-                    "- <@731925248764674048>"
-                    " | <@1200026664395079712>\n"
-                    "- <@1253736429964628018>\n\n"
-                    "**<@&1424364849751920741>**\n"
-                    "- <@940824020046192650>"
-                    " | <@887220487468511273>\n"
-                    "- <@877650323655782440>"
-                    " | <@836848313356910594>\n"
-                    "- <@1052217329003548702>"
-                    " | <@821025628127756320>\n"
-                    "- <@555346103973707777>"
-                    " | <@804312689609408533>\n\n"
-                    "**<@&1424364871134482482>**\n"
-                    "- <@316546939481096192>"
-                    " | <@831401368324669460>\n"
-                    "- <@949660082566729748>"
-                    " | <@527922466115551251>\n"
-                    "- <@1037169224617050162>"
-                    " | <@858108973772439562>\n"
-                    "- <@1048013306000068638>"
-                    " | <@766143826254888998>\n"
-                    "- <@598176509345136650>"
-                    " | <@338448901432672267>"
-                ),
-            color = discord.Colour.yellow()
-            )
-        await interaction.response.send_message(embed=embed)
+            title="🎨 Our Artists",
+            description=embed_description,
+            color=discord.Colour.yellow()
+        )
+
+        await interaction.response.send_message(
+            embed=embed,
+            allowed_mentions=discord.AllowedMentions(roles=True)
+        )
 
 
 app = Flask(__name__)
