@@ -237,7 +237,7 @@ class TicketCategory(discord.ui.Select):
 # ----------------- Opened Ticket embed ------------------
 
         guild = channel.guild
-        transcript_channel = discord.utils.get(guild.text_channels, name="transcripts")
+        transcript_channel = discord.utils.get(guild.text_channels, name="📝・ticket-transcript")
         if transcript_channel:
             transcript_embed = discord.Embed(
                 title="Ticket Created",
@@ -357,7 +357,7 @@ class Tickets(commands.Cog):
     # ----------- Generate Transcript -----------
     async def generate_transcript(self, channel: discord.TextChannel, executor: discord.Member):
         guild = channel.guild
-        transcript_channel = discord.utils.get(guild.text_channels, name="transcripts")
+        transcript_channel = discord.utils.get(guild.text_channels, name="📝・ticket-transcript")
         if transcript_channel is None:
             print(f"Transcript channel not found.")
             return
@@ -494,7 +494,7 @@ a:hover {{ text-decoration: underline; }}
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(html)
 
-        public_url = push_to_github(file_path, f"transcripts/{base_name}.html")
+        public_url = push_to_github(file_path, f"transcripts/{base_name}")
 
         embed = discord.Embed(
             title="Ticket Closed",

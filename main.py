@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from discord import app_commands, Embed, Colour
+from discord import app_commands
 from dotenv import load_dotenv
 import os
 import asyncio
@@ -166,7 +166,7 @@ async def purge(interaction: discord.Interaction, amount: int):
 async def helpcmnd(interaction:discord.Interaction):
     help_embed = discord.Embed(
         title="",
-        description=(f"**Member commands**\n\n`- /artist about\n- /artist list`\n\n**Channel commands**\n\n`- !feedback\n- !help\n- !wip`\n\n**Admin Commands**\n\n`- /role remove\n- /role add\n- /purge\n- /psd\n- /closerequest\n- /shutdown`"),
+        description=(f"**Member commands**\n\n`- /artist about\n- /artist list`\n\n**Channel commands**\n\n`- /feedback\n- /help\n- /wip`\n\n**Admin Commands**\n\n`- /role remove\n- /role add\n- /purge\n- /psd\n- /closerequest\n- /shutdown`"),
         color = discord.Colour.pink()
     )
     help_embed.add_field(name="",value="",inline=True)
@@ -341,9 +341,9 @@ ARTISTS_INFO = {
 }
 
 ARTIST_ROLES = {
-    "Professional Artist": 1424364871134482482,
-    "Artist+": 1424364849751920741,
-    "Artist": 1424364827551338666
+    "Professional Artist": 1102980848606785616,
+    "Artist+": 1102982383571042386,
+    "Artist": 1102983469933543435
 }
 
 class Artist(app_commands.Group):
