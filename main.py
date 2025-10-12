@@ -90,7 +90,6 @@ GUILD_ID = 1415013619246039082
 @client.event
 async def on_ready():
     guild = discord.Object(id=GUILD_ID)
-    client.tree.clear_commands(guild=guild)
 
     artist_group = Artist()
     roles_group = Roles()
