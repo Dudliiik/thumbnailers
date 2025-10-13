@@ -330,7 +330,7 @@ ARTISTS_INFO = {
     877650323655782440: {  # gopg
         "name": "gopg",
         "description": "Hi, I’m gopg, I’m a content creator turned thumbnail artist with 1 year of experience in creating smp thumbnails and 6 years of overall experience in Photoshop\n\nI’m currently working with Flamefrags and have worked with Baablu, TruOriginal, Lomedy, and Dol9hin in the past, accumulating over 20M views across all the videos with my thumbnails.",
-        "image": "",
+        "image": "https://cdn.discordapp.com/attachments/1408183415072882749/1427412208618442782/Screenshot_2025-10-12_131808.png?ex=68eec4b6&is=68ed7336&hm=ee3bc2390725cab803b5f3544875f731b68dc3432013ae703c925ae0ff0105b9&",
         "links": {
             "Portfolio": "https://www.behance.net/gopg",
             "Twitter": "https://x.com/gopgVEVO"
