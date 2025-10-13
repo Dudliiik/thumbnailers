@@ -180,7 +180,7 @@ ARTISTS_INFO = {
             "Hi, I'm a professional thumbnail artist & graphics designer 🖌️ with +3 years of experience, and had worked with some well-known creators in the industry, throughout my designer career.\n\n"
             "I specialize in creating thumbnails 📈 that are visually stunning and able to get the attention."
         ),
-        "image": "https://link_to_thumbnail.png",
+        "image": "https://cdn.discordapp.com/attachments/1361253039314567288/1361253039482208346/a18bc11471372787.6662abe2d3d6f.png?ex=68ee062f&is=68ecb4af&hm=2c1bc6e48f64de31ed4659991108b0218593b840aeecbc16f1dbb40b651e9977&",
         "links": {
             "Twitter": "https://x.com/zynfx_designs",
             "Behance": "https://www.behance.net/zynfx"
