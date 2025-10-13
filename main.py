@@ -185,7 +185,7 @@ ARTISTS_INFO = {
             "Twitter": "https://x.com/zynfx_designs",
             "Behance": "https://www.behance.net/zynfx"
         },
-        "role": "1424364871134482482"
+        "role": "1102980848606785616"
     },
     338448901432672267: {  # Kbashed
         "name": "Kbashed",
@@ -194,7 +194,7 @@ ARTISTS_INFO = {
         "links": {
             "Portfolio": "https://kbashed.com/"
         },
-        "role": "1424364871134482482"
+        "role": "1102980848606785616"
     },
     766143826254888998: {  # Realmfx
         "name": "Realmfx",
@@ -204,7 +204,7 @@ ARTISTS_INFO = {
             "Portfolio": "https://www.behance.net/realmfx_",
             "YTJobs": "https://ytjobs.co/talent/profile/380572?r=38&t=tnp&utm_campaign=share-new-profile&utm_ref=talent"
         },
-        "role": "1424364871134482482"
+        "role": "1102980848606785616"
     },
     527922466115551251: {  # Andre
         "name": "Andre",
@@ -216,7 +216,7 @@ ARTISTS_INFO = {
             "Portfolio": "https://www.artstation.com/andre_mcdz",
             "Twitter": "https://x.com/andre_mcdz"
         },
-        "role": "1424364871134482482"
+        "role": "1102980848606785616"
     },
     949660082566729748: {  # Fyoncle
         "name": "Fyoncle",
@@ -225,7 +225,7 @@ ARTISTS_INFO = {
         "links": {
             "Portfolio": "https://www.artstation.com/fyoncle"
         },
-        "role": "1424364871134482482"
+        "role": "1102980848606785616"
     },
     598176509345136650: {
         "name": "⚡arik_Gamerz ⚡",
@@ -234,7 +234,7 @@ ARTISTS_INFO = {
         "links": {
             "Portfolio": "https://ariksportfolio.carrd.co/"
         },
-        "role": "1424364871134482482"
+        "role": "1102980848606785616"
     },
     1037169224617050162: { # Emzz
         "name": "Emzzfx",
@@ -246,7 +246,7 @@ ARTISTS_INFO = {
             "Website": "https://solo.to/emmzmc",
             "Twitter": "https://x.com/emmz_fx"
         },
-        "role": "1424364871134482482"
+        "role": "1102980848606785616"
     },
     767953235616202833: { # Mango
         "name": "Mangofx",
@@ -258,7 +258,7 @@ ARTISTS_INFO = {
             "Website": "https://mangofx.art/",
             "YTJobs": "https://ytjobs.co/@mangofx"
         },
-        "role": "1424364871134482482"
+        "role": "1102980848606785616"
     },
     858108973772439562: {  # wkso
         "name": "wkso",
@@ -268,7 +268,7 @@ ARTISTS_INFO = {
             "Portfolio": "https://www.behance.net/wkso",
             "Payhip": "https://payhip.com/wkso"
         },
-        "role": "1424364871134482482"
+        "role": "1102980848606785616"
     },
 
     # ARTIST+
@@ -282,7 +282,7 @@ ARTISTS_INFO = {
             "Behance": "https://be.net/bluu_fx",
             "Twitter": "https://x.com/B1UUfx"
         },
-        "role": "1424364849751920741"
+        "role": "1102982383571042386"
     },
     887220487468511273: {  # Danmc
         "name": "DanMC",
@@ -293,7 +293,7 @@ ARTISTS_INFO = {
             "Behance": "https://www.behance.net/danthumbnail",
             "YTJobs": "https://ytjobs.co/talent/profile/438393"
         },
-        "role": "1424364849751920741"
+        "role": "1102982383571042386"
     },
     821025628127756320: {  # Ninja
         "name": "Ninjanmy",
@@ -304,7 +304,7 @@ ARTISTS_INFO = {
             "Behance": "https://www.behance.net/ninjanmy-zbxri",
             "Twitter": "https://x.com/ninjanmy"
         },
-        "role": "1424364849751920741"
+        "role": "1102982383571042386"
     },
     804312689609408533: {  # Silent
         "name": "Silent",
@@ -315,7 +315,7 @@ ARTISTS_INFO = {
             "Twitter": "https://x.com/SilentObv",
             "Fiverr": "https://www.fiverr.com/obvsilent_"
         },
-        "role": "1424364849751920741"
+        "role": "1102982383571042386"
     },
     836848313356910594: {  # Izze
         "name": "Izze",
@@ -325,7 +325,7 @@ ARTISTS_INFO = {
             "Portfolio": "https://izzegfx.carrd.co/",
             "Commissions": "https://ko-fi.com/izlexn"
         },
-        "role": "1424364849751920741"
+        "role": "1102982383571042386"
     },
     877650323655782440: {  # gopg
         "name": "gopg",
@@ -335,7 +335,7 @@ ARTISTS_INFO = {
             "Portfolio": "https://www.behance.net/gopg",
             "Twitter": "https://x.com/gopgVEVO"
         },
-        "role": "1424364849751920741"
+        "role": "1102982383571042386"
     },
 }
 
@@ -359,9 +359,11 @@ class Artist(app_commands.Group):
         if not info:
             await interaction.response.send_message(f"No info found for {artist.name}.", ephemeral=True)
             return
-
+        
         role_id = int(info["role"])
         role = interaction.guild.get_role(role_id)
+        if not role:
+            await interaction.response.send_message("No Artist roles found.")
 
         embed = discord.Embed(
             title=info["name"],

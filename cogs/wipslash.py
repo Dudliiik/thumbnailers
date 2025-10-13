@@ -15,6 +15,7 @@ class slashWIP(commands.Cog):
         name="wip",
         description="Pings the WIP role."
     )
+    
     @app_commands.describe(
         image="Attach image",
         message="Optional message"
