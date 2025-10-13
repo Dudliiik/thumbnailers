@@ -250,7 +250,7 @@ ARTISTS_INFO = {
     },
     767953235616202833: { # Mango
         "name": "Mangofx",
-        "description": "Hey, i’m a highly experienced thumbnail designer who’s worked with several creators including Daquavis, Kiply, Wisp, FlameFrags, Sharpness, and many more.\n\nI’ve accumulated around 30M views with my work.\n\nDm for inquiries—prices start at $80 per thumbnail.",
+        "description": "Hey, i’m a highly experienced thumbnail designer who’s worked with several creators including Daquavis, Kiply, Wisp, FlameFrags, Sharpness, and many more.\n\nI’ve accumulated around 30M views with my work.\n\nDm for inquiries—prices start at $100 per thumbnail.",
         "image": "https://images-ext-1.discordapp.net/external/WdoX7PCp10-df9laMm1WRnT9nkDDHpTFo-T9qVHWSaE/https/mir-s3-cdn-cf.behance.net/user/276/c947ff417104081.6544942e56c40.png?format=webp&quality=lossless",
         "links": {
             "Portfolio": "https://behance.net/mango_fx",
