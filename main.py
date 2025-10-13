@@ -424,7 +424,7 @@ class Artist(app_commands.Group):
 
         await interaction.response.send_message(
             embed=embed,
-            allowed_mentions=discord.AllowedMentions(roles=True)
+            allowed_mentions=discord.AllowedMentions(users = True, roles=True)
         )
 
 app = Flask(__name__)
