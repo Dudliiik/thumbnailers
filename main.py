@@ -85,7 +85,7 @@ async def on_member_update(before: discord.Member, after: discord.Member):
 
 # ---------------- Bot event ----------------
 
-GUILD_ID = 1415013619246039082
+GUILD_ID = 1102968474894082081
 
 @client.event
 async def on_ready():
