@@ -95,6 +95,13 @@ async def on_ready():
     roles_group = Roles()
     client.tree.add_command(artist_group)
     client.tree.add_command(roles_group)
+    for guild in client.guilds:
+        try:
+            async for member in guild.fetch_members(limit=None):
+                pass
+            print(f"Preloaded all members for {guild.name}")
+        except Exception as e:
+            print(f"Failed to fetch members for {guild.name}: {e}")
 
     synced = await client.tree.sync()
     print(f"Synced commands - {len(synced)}")
@@ -384,29 +391,28 @@ class Artist(app_commands.Group):
     @app_commands.command(
         name="list",
         description="Shows a list of our Artists."
-    )
+        )
     async def list(self, interaction: discord.Interaction):
         guild = interaction.guild
+        await interaction.response.defer()
 
-        await guild.chunk()
-        all_members = guild.members
-
+    # Fetch all members reliably
+        all_members = [m async for m in guild.fetch_members(limit=None)]
         print(f"Fetched {len(all_members)} members from {guild.name}")
 
         embed_description = ""
         for role_name, role_id in ARTIST_ROLES.items():
             role = guild.get_role(role_id)
             if not role:
-                continue
+               continue
 
             members_with_role = [
-                f"<@{m.id}>" for m in all_members
-                if any(r.id == role.id for r in m.roles)
+            f"<@{m.id}>" for m in all_members if role in m.roles
             ]
 
             if not members_with_role:
-                embed_description += f"{role.mention}\nNo members yet.\n\n"
-                continue
+                 embed_description += f"{role.mention}\nNo members yet.\n\n"
+                 continue
 
             lines = []
             for i in range(0, len(members_with_role), 2):
@@ -417,16 +423,16 @@ class Artist(app_commands.Group):
             embed_description += f"{role.mention}\n- {member_list_str}\n\n"
 
         embed = discord.Embed(
-            title="🎨 Our Artists",
-            description=embed_description or "No artists found.",
-            color=discord.Colour.yellow()
+           title="🎨 Our Artists",
+           description=embed_description or "No artists found.",
+           color=discord.Colour.yellow()
         )
 
-        await interaction.response.send_message(
+        await interaction.followup.send(
             embed=embed,
-            allowed_mentions=discord.AllowedMentions(users = True, roles=True)
+            allowed_mentions=discord.AllowedMentions(users=True, roles=True)
         )
-
+    
 app = Flask(__name__)
 TRANSCRIPT_FOLDER = os.path.join(os.getcwd(), "transcripts")
 os.makedirs(TRANSCRIPT_FOLDER, exist_ok=True)
