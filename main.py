@@ -427,7 +427,7 @@ class Artist(app_commands.Group):
                 lines.append(" | ".join(pair))
 
             member_list_str = "\n ".join(lines)
-            embed_description += f"{role.mention}\n- {member_list_str}\n\n"
+            embed_description += f"{role.mention}\n {member_list_str}\n\n"
 
         embed = discord.Embed(
             title="🎨 Our Artists",
@@ -437,7 +437,7 @@ class Artist(app_commands.Group):
 
         await interaction.response.send_message(
              embed=embed,
-             allowed_mentions=discord.AllowedMentions(roles=True)
+             allowed_mentions=discord.AllowedMentions(users = True, roles=True)
         )
     
 app = Flask(__name__)
