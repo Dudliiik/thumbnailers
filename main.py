@@ -401,41 +401,43 @@ class Artist(app_commands.Group):
     description="Shows a list of our Artists.",
     )
     async def list(self, interaction: discord.Interaction):
-        guild = interaction.client.get_guild(GUILD_ID)
+        guild = interaction.guild
 
-        all_members = []
-        async for member in guild.fetch_members(limit=None):
-            all_members.append(member)
+        await guild.chunk()
+        all_members = guild.members
 
         embed_description = ""
         for role_name, role_id in ARTIST_ROLES.items():
             role = guild.get_role(role_id)
             if not role:
-                continue
+                 continue
 
-            members_with_role = [f"<@{m.id}>" for m in all_members if role in m.roles]
+            members_with_role = [
+                f"<@{m.id}>" for m in all_members
+                if any(r.id == role.id for r in m.roles)
+            ]
 
             if not members_with_role:
-                embed_description += f"{role.mention}\nNo members yet.\n\n"
-                continue
+                 embed_description += f"{role.mention}\nNo members yet.\n\n"
+                 continue
 
             lines = []
             for i in range(0, len(members_with_role), 2):
-                pair = members_with_role[i:i+2] 
+                pair = members_with_role[i:i+2]
                 lines.append(" | ".join(pair))
 
-            member_list_str = "\n- ".join(lines)  
-            embed_description += f"{role.mention}\n- {member_list_str}\n\n"
+             member_list_str = "\n ".join(lines)
+             embed_description += f"{role.mention}\n- {member_list_str}\n\n"
 
         embed = discord.Embed(
             title="🎨 Our Artists",
-            description=embed_description,
+            description=embed_description or "No artists found.",
             color=discord.Colour.yellow()
         )
 
         await interaction.response.send_message(
-            embed=embed,
-            allowed_mentions=discord.AllowedMentions(roles=True)
+             embed=embed,
+             allowed_mentions=discord.AllowedMentions(roles=True)
         )
     
 app = Flask(__name__)
