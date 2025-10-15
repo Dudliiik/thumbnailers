@@ -426,15 +426,18 @@ class Artist(app_commands.Group):
                 pair = members_with_role[i:i+2]
                 lines.append(" | ".join(pair))
 
-            member_list_str = "\n ".join(lines)
-            embed_description += f"{role.mention}\n {member_list_str}\n\n"
+            member_list_str = "\n".join(lines)
+            embed_description += f"{role.mention}\n{member_list_str}\n\n"
 
         embed = discord.Embed(
             title="🎨 Our Artists",
             description=embed_description or "No artists found.",
             color=discord.Colour.yellow()
         )
-        embed.set_footer(text="Thumbnailers", icon_url=self.interaction.client.display_avatar.url)
+        embed.set_footer(
+          text="Thumbnailers",
+          icon_url=interaction.client.user.display_avatar.url
+        )
 
         await interaction.response.send_message(
              embed=embed,
