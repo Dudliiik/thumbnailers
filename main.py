@@ -426,8 +426,8 @@ class Artist(app_commands.Group):
                 pair = members_with_role[i:i+2]
                 lines.append(" | ".join(pair))
 
-             member_list_str = "\n ".join(lines)
-             embed_description += f"{role.mention}\n- {member_list_str}\n\n"
+            member_list_str = "\n ".join(lines)
+            embed_description += f"{role.mention}\n- {member_list_str}\n\n"
 
         embed = discord.Embed(
             title="🎨 Our Artists",
