@@ -434,6 +434,7 @@ class Artist(app_commands.Group):
             description=embed_description or "No artists found.",
             color=discord.Colour.yellow()
         )
+        embed.set_footer(text="Thumbnailers", icon_url=self.bot.user.display_avatar.url)
 
         await interaction.response.send_message(
              embed=embed,
