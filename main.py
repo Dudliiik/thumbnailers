@@ -275,6 +275,16 @@ ARTISTS_INFO = {
         },
         "role": "1102980848606785616"
     },
+    316546939481096192: {  # Seltop
+        "name": "Seltop",
+        "description": "Hey, I'm Seltop, I've been making thumbnails for a while now along side developing different tools for the community.\nFounder of NewNPC mod\nOwner of MDH\nDMs open!",
+        "image": "https://media.discordapp.net/attachments/1428063262095708230/1428063262410277034/Youtube_pfp.png?ex=68f1230d&is=68efd18d&hm=9f9a3203d37394c92688a5eaf37609ada2c8de5bb9057bbba90920ff98078922&=&format=webp&quality=lossless&width=1232&height=1232",
+        "links": {
+            "Portfolio": "https://www.seltop.work/",
+            "YTJobs": "https://ytjobs.co/talent/profile/349647?r=50"
+        },
+        "role": "1102980848606785616"
+    },
 
     # ARTIST+
 
