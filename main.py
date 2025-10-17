@@ -403,8 +403,7 @@ class Artist(app_commands.Group):
     async def list(self, interaction: discord.Interaction):
         guild = interaction.guild
 
-        await guild.chunk()
-        all_members = guild.members
+        all_members = [m async for m in guild.fetch_members(limit=None)]
 
         embed_description = ""
         for role_name, role_id in ARTIST_ROLES.items():
