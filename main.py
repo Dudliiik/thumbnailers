@@ -401,6 +401,7 @@ class Artist(app_commands.Group):
     description="Shows a list of our Artists.",
     )
     async def list(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         guild = interaction.guild
 
         all_members = [m async for m in guild.fetch_members(limit=None)]
@@ -438,7 +439,7 @@ class Artist(app_commands.Group):
           icon_url=interaction.client.user.display_avatar.url
         )
 
-        await interaction.response.send_message(
+        await interaction.followup.send(
              embed=embed,
              allowed_mentions=discord.AllowedMentions(users = True, roles=True)
         )
