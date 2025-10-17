@@ -95,6 +95,13 @@ GUILD_ID = 1415013619246039082
 @client.event
 async def on_ready():
     guild = discord.Object(id=GUILD_ID)
+    for guild in client.guilds:
+        try:
+            # Ask Discord to send all members for this guild
+            await guild.chunk()
+            print(f"Chunked {len(guild.members)} members in {guild.name}")
+        except Exception as e:
+            print(f"Couldn't chunk {guild.name}: {e}")
 
     artist_group = Artist()
     roles_group = Roles()
