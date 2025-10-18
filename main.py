@@ -449,7 +449,37 @@ class Artist(app_commands.Group):
             embed=embed,
             allowed_mentions=discord.AllowedMentions(users=True, roles=True)
         )
-    
+
+ROLE_ARTIST = 1102983469933543435
+ROLE_ARTIST_PLUS = 1102982383571042386
+ROLE_PROFESSIONAL_ARTIST = 1102980848606785616
+ROLE_IDS = [ROLE_ARTIST, ROLE_ARTIST_PLUS, ROLE_PROFESSIONAL_ARTIST]
+
+@bot.tree.command(name="list", description="List all members with Artist roles")
+async def list_members(interaction: discord.Interaction):
+    guild = interaction.guild
+    roles = [guild.get_role(rid) for rid in ROLE_IDS]
+
+    members = [
+        member for member in guild.members
+        if all(any(role.id == rid for role in member.roles) for rid in ROLE_IDS)
+    ]
+
+    if not members:
+        await interaction.response.send_message("No members found with all 3 roles.")
+        return
+
+    roles_text = " | ".join(f"<@&{role.id}>" for role in roles)
+    members_text = " | ".join(f"[{member.name}](https://discord.com/users/{member.id})" for member in members)
+
+    embed = discord.Embed(
+        title="Members with Artist Roles",
+        description=f"**Roles:** {roles_text}\n\n**Members:** {members_text}",
+        color=discord.Color.blue()
+    )
+
+    await interaction.response.send_message(embed=embed)
+
 app = Flask(__name__)
 TRANSCRIPT_FOLDER = os.path.join(os.getcwd(), "transcripts")
 os.makedirs(TRANSCRIPT_FOLDER, exist_ok=True)
