@@ -455,7 +455,7 @@ ROLE_ARTIST_PLUS = 1102982383571042386
 ROLE_PROFESSIONAL_ARTIST = 1102980848606785616
 ROLE_IDS = [ROLE_ARTIST, ROLE_ARTIST_PLUS, ROLE_PROFESSIONAL_ARTIST]
 
-@bot.tree.command(name="list", description="List all members with Artist roles")
+@client.tree.command(name="list", description="List all members with Artist roles")
 async def list_members(interaction: discord.Interaction):
     guild = interaction.guild
     roles = [guild.get_role(rid) for rid in ROLE_IDS]
