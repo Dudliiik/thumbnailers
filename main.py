@@ -67,27 +67,34 @@ boost_counts = load_boosts()
 
 @client.event
 async def on_member_update(before: discord.Member, after: discord.Member):
-    # Detekcia nového boostu (keď user boostne server)
+    # --- BOOST TRACKING ---
     if before.premium_since is None and after.premium_since is not None:
         user_id = str(after.id)
         boost_counts[user_id] = boost_counts.get(user_id, 0) + 1
         save_boosts(boost_counts)
-
         print(f"{after} boostol server ({boost_counts[user_id]}.x)")
 
-        # Ak je to druhý boost
         if boost_counts[user_id] == 2:
             role = discord.utils.get(after.guild.roles, name="VIP+")
             if role and role not in after.roles:
                 await after.add_roles(role)
                 print(f"Dal som {after} rolu VIP+")
 
-    # Ak user prestane boostovať
     elif before.premium_since is not None and after.premium_since is None:
         role = discord.utils.get(after.guild.roles, name="VIP+")
         if role and role in after.roles:
             await after.remove_roles(role)
             print(f"Odobral som {after} rolu VIP+")
+
+    # --- ARTIST CACHE LOGIC ---
+    cache = load_cache()
+    user_id = str(after.id)
+    has_roles = any(r.id in ROLE_IDS for r in after.roles)
+    if has_roles:
+        cache[user_id] = [rid for rid in ROLE_IDS if after.guild.get_role(rid) in after.roles]
+    elif user_id in cache:
+        del cache[user_id]
+    save_cache(cache)
 
 # ---------------- Bot event ----------------
 
@@ -95,14 +102,9 @@ GUILD_ID = 1415013619246039082
 
 @client.event
 async def on_ready():
-    guild = discord.Object(id=GUILD_ID)
     for guild in client.guilds:
-        try:
-            # Ask Discord to send all members for this guild
-            await guild.chunk()
-            print(f"Chunked {len(guild.members)} members in {guild.name}")
-        except Exception as e:
-            print(f"Couldn't chunk {guild.name}: {e}")
+        await guild.chunk()  # ensures all members are cached
+        await populate_cache(guild)
 
     artist_group = Artist()
     roles_group = Roles()
@@ -500,18 +502,6 @@ async def populate_cache(guild):
             await guild.fetch_member(int(member_id))
         except:
             pass
-
-# ---------------- Role Update Handling ----------------
-@client.event
-async def on_member_update(before, after):
-    cache = load_cache()
-    user_id = str(after.id)
-    has_roles = any(r.id in ROLE_IDS for r in after.roles)
-    if has_roles:
-        cache[user_id] = [rid for rid in ROLE_IDS if after.guild.get_role(rid) in after.roles]
-    elif user_id in cache:
-        del cache[user_id]  # remove if no roles left
-    save_cache(cache)
 
 # ---------------- /artist_list Command ----------------
 @client.tree.command(name="artist_list", description="List all members with Artist roles (hoverable, no ping)")
