@@ -412,7 +412,7 @@ class Artist(app_commands.Group):
                  continue
 
             members_with_role = [
-                f{m.name}" for m in all_members
+                f"{m.name}" for m in all_members
                 if any(r.id == role.id for r in m.roles)
             ]
 
