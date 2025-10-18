@@ -455,30 +455,42 @@ ROLE_ARTIST_PLUS = 1102982383571042386
 ROLE_PROFESSIONAL_ARTIST = 1102980848606785616
 ROLE_IDS = [ROLE_ARTIST, ROLE_ARTIST_PLUS, ROLE_PROFESSIONAL_ARTIST]
 
-@client.tree.command(name="list", description="List all members with Artist roles")
+@client.tree.command(name="list", description="List all members in Artist roles")
 async def list_members(interaction: discord.Interaction):
+    await interaction.response.defer()  # In case fetching takes a moment
+
     guild = interaction.guild
     roles = [guild.get_role(rid) for rid in ROLE_IDS]
 
-    members = [
-        member for member in guild.members
-        if all(any(role.id == rid for role in member.roles) for rid in ROLE_IDS)
-    ]
-
-    if not members:
-        await interaction.response.send_message("No members found with all 3 roles.")
+    if not all(roles):
+        await interaction.followup.send("Some roles were not found in this server.")
         return
 
+    # Collect all unique members from the 3 roles
+    members_set = set()
+    for role in roles:
+        for m in role.members:
+            if not m.bot:  # Skip bots
+                members_set.add(m)
+
+    if not members_set:
+        await interaction.followup.send("No members found in these roles.")
+        return
+
+    # Make roles clickable
     roles_text = " | ".join(f"<@&{role.id}>" for role in roles)
-    members_text = " | ".join(f"[{member.name}](https://discord.com/users/{member.id})" for member in members)
+
+    # Make members clickable (without ping)
+    members_text = " | ".join(f"[{m.name}](https://discord.com/users/{m.id})" for m in members_set)
 
     embed = discord.Embed(
-        title="Members with Artist Roles",
+        title="🎨 Members with Artist Roles",
         description=f"**Roles:** {roles_text}\n\n**Members:** {members_text}",
         color=discord.Color.blue()
     )
 
-    await interaction.response.send_message(embed=embed)
+    await interaction.followup.send(embed=embed)
+
 
 app = Flask(__name__)
 TRANSCRIPT_FOLDER = os.path.join(os.getcwd(), "transcripts")
