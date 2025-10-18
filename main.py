@@ -450,13 +450,12 @@ class Artist(app_commands.Group):
             allowed_mentions=discord.AllowedMentions(users=True, roles=True)
         )
 
-@client.tree.command(name="list", description="List all members with Artist roles")
-async def artist_list(interaction: discord.Interaction):
-    await interaction.response.defer()  # Give it time for fetching
+@client.tree.command(name="list", description="List all Artist role members without pinging")
+async def artist_list_msg(interaction: discord.Interaction):
+    await interaction.response.defer()
 
     guild = interaction.guild
 
-    # ------------------- Artist Role IDs -------------------
     ROLE_IDS = [
         1102983469933543435,  # Artist
         1102982383571042386,  # Artist+
@@ -464,43 +463,26 @@ async def artist_list(interaction: discord.Interaction):
     ]
     roles = [guild.get_role(rid) for rid in ROLE_IDS if guild.get_role(rid)]
 
-    if not roles:
-        await interaction.followup.send("No roles found!")
-        return
-
-    # ------------------- Collect Member IDs -------------------
-    member_ids = set()
+    # Collect all members from the roles
+    members_set = set()
     for role in roles:
         for m in role.members:
             if not m.bot:
-                member_ids.add(m.id)
-
-    # ------------------- Force Fetch Members -------------------
-    members_set = set()
-    for member_id in member_ids:
-        try:
-            member = await guild.fetch_member(member_id)
-            members_set.add(member)
-        except:
-            continue  # Skip users who left
+                members_set.add(m)
 
     if not members_set:
-        await interaction.followup.send("No members found in these roles.")
+        await interaction.followup.send("No members found.")
         return
 
-    # ------------------- Build Embed -------------------
-    roles_text = " | ".join(f"<@&{role.id}>" for role in roles)
+    # Create the text with mentions (they appear clickable)
     members_text = " | ".join(m.mention for m in members_set)
+    roles_text = " | ".join(f"<@&{role.id}>" for role in roles)
 
-    embed = discord.Embed(
-        title="🎨 Members with Artist Roles",
-        description=f"**Roles:** {roles_text}\n\n**Members:** {members_text}",
-        color=discord.Color.blue()
-    )
+    message = f"**Roles:** {roles_text}\n**Members:** {members_text}"
 
     await interaction.followup.send(
-        embed=embed,
-        allowed_mentions=discord.AllowedMentions(users=False, roles=False)  # no pings
+        message,
+        allowed_mentions=discord.AllowedMentions(users=False, roles=False)  # DISABLE PINGS
     )
 
 
