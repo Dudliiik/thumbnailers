@@ -1,5 +1,3 @@
-how do i fix that not every member gets a clickable name in the embed, but some do?
-
 import discord
 from discord.ext import commands
 from discord import app_commands
