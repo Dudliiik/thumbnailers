@@ -1,3 +1,5 @@
+how do i fix that not every member gets a clickable name in the embed, but some do?
+
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -66,25 +68,27 @@ boost_counts = load_boosts()
 
 @client.event
 async def on_member_update(before: discord.Member, after: discord.Member):
-    # --- BOOST TRACKING ---
+    # Detekcia nového boostu (keď user boostne server)
     if before.premium_since is None and after.premium_since is not None:
         user_id = str(after.id)
         boost_counts[user_id] = boost_counts.get(user_id, 0) + 1
         save_boosts(boost_counts)
+
         print(f"{after} boostol server ({boost_counts[user_id]}.x)")
 
+        # Ak je to druhý boost
         if boost_counts[user_id] == 2:
             role = discord.utils.get(after.guild.roles, name="VIP+")
             if role and role not in after.roles:
                 await after.add_roles(role)
                 print(f"Dal som {after} rolu VIP+")
 
+    # Ak user prestane boostovať
     elif before.premium_since is not None and after.premium_since is None:
         role = discord.utils.get(after.guild.roles, name="VIP+")
         if role and role in after.roles:
             await after.remove_roles(role)
             print(f"Odobral som {after} rolu VIP+")
-
 
 # ---------------- Bot event ----------------
 
@@ -92,9 +96,7 @@ GUILD_ID = 1415013619246039082
 
 @client.event
 async def on_ready():
-    GUILD_ID = 1102968474894082081
-    guild = client.get_guild(GUILD_ID)
-    await client.tree.clear(guild=guild)
+    guild = discord.Object(id=GUILD_ID)
 
     artist_group = Artist()
     roles_group = Roles()
@@ -396,32 +398,33 @@ class Artist(app_commands.Group):
     # --------------------------------------------------------------------------
 
     @app_commands.command(
-        name="list",
-        description="Shows a list of our Artists.",
+    name="list",
+    description="Shows a list of our Artists.",
     )
     async def list(self, interaction: discord.Interaction):
-        await interaction.response.defer()
         guild = interaction.guild
- 
+
         await guild.chunk()
+        all_members = guild.members
 
         embed_description = ""
-
         for role_name, role_id in ARTIST_ROLES.items():
             role = guild.get_role(role_id)
             if not role:
-                continue
+                 continue
 
-            members_with_role = [m for m in role.members if not m.bot]
+            members_with_role = [
+                f"<@{m.id}>" for m in all_members
+                if any(r.id == role.id for r in m.roles)
+            ]
 
             if not members_with_role:
-                embed_description += f"{role.mention}\nNo members yet.\n\n"
-                continue
+                 embed_description += f"{role.mention}\nNo members yet.\n\n"
+                 continue
 
             lines = []
-            mentions = [m.mention for m in members_with_role]
-            for i in range(0, len(mentions), 2):
-                pair = mentions[i:i+2]
+            for i in range(0, len(members_with_role), 2):
+                pair = members_with_role[i:i+2]
                 lines.append(" | ".join(pair))
 
             member_list_str = "\n".join(f"- {line}" for line in lines)
@@ -433,16 +436,15 @@ class Artist(app_commands.Group):
             color=discord.Colour.yellow()
         )
         embed.set_footer(
-            text="Thumbnailers",
-            icon_url=interaction.client.user.display_avatar.url
+          text="Thumbnailers",
+          icon_url=interaction.client.user.display_avatar.url
         )
 
-        await interaction.followup.send(
-            embed=embed,
-            allowed_mentions=discord.AllowedMentions(users=True, roles=True)
+        await interaction.response.send_message(
+             embed=embed,
+             allowed_mentions=discord.AllowedMentions(users = True, roles=True)
         )
-
-
+    
 app = Flask(__name__)
 TRANSCRIPT_FOLDER = os.path.join(os.getcwd(), "transcripts")
 os.makedirs(TRANSCRIPT_FOLDER, exist_ok=True)
@@ -457,8 +459,7 @@ def home():
 
 def run_web():
     app.run(host="0.0.0.0", port=10000, debug=False)
-
-                           
+                      
 # ---------------- Run bot + web ----------------
 
 async def main():
