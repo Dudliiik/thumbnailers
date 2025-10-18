@@ -92,7 +92,9 @@ GUILD_ID = 1415013619246039082
 
 @client.event
 async def on_ready():
-    await guild.chunk()  # ensures all members are cached
+    GUILD_ID = 1102968474894082081
+    guild = client.get_guild(GUILD_ID)
+    await client.tree.clear(guild=guild)
 
     artist_group = Artist()
     roles_group = Roles()
