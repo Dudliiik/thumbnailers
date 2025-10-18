@@ -450,37 +450,46 @@ class Artist(app_commands.Group):
             allowed_mentions=discord.AllowedMentions(users=True, roles=True)
         )
 
-ROLE_ARTIST = 1102983469933543435
-ROLE_ARTIST_PLUS = 1102982383571042386
-ROLE_PROFESSIONAL_ARTIST = 1102980848606785616
-ROLE_IDS = [ROLE_ARTIST, ROLE_ARTIST_PLUS, ROLE_PROFESSIONAL_ARTIST]
-
-@client.tree.command(name="list", description="List all members in Artist roles")
-async def list_members(interaction: discord.Interaction):
-    await interaction.response.defer()  # In case fetching takes a moment
+@client.tree.command(name="list", description="List all members with Artist roles")
+async def artist_list(interaction: discord.Interaction):
+    await interaction.response.defer()  # Give it time for fetching
 
     guild = interaction.guild
-    roles = [guild.get_role(rid) for rid in ROLE_IDS]
 
-    if not all(roles):
-        await interaction.followup.send("Some roles were not found in this server.")
+    # ------------------- Artist Role IDs -------------------
+    ROLE_IDS = [
+        1102983469933543435,  # Artist
+        1102982383571042386,  # Artist+
+        1102980848606785616   # Professional Artist
+    ]
+    roles = [guild.get_role(rid) for rid in ROLE_IDS if guild.get_role(rid)]
+
+    if not roles:
+        await interaction.followup.send("No roles found!")
         return
 
-    # Collect all unique members from the 3 roles
-    members_set = set()
+    # ------------------- Collect Member IDs -------------------
+    member_ids = set()
     for role in roles:
         for m in role.members:
-            if not m.bot:  # Skip bots
-                members_set.add(m)
+            if not m.bot:
+                member_ids.add(m.id)
+
+    # ------------------- Force Fetch Members -------------------
+    members_set = set()
+    for member_id in member_ids:
+        try:
+            member = await guild.fetch_member(member_id)
+            members_set.add(member)
+        except:
+            continue  # Skip users who left
 
     if not members_set:
         await interaction.followup.send("No members found in these roles.")
         return
 
-    # Make roles clickable
+    # ------------------- Build Embed -------------------
     roles_text = " | ".join(f"<@&{role.id}>" for role in roles)
-
-    # Make members clickable (without ping)
     members_text = " | ".join(m.mention for m in members_set)
 
     embed = discord.Embed(
@@ -490,9 +499,9 @@ async def list_members(interaction: discord.Interaction):
     )
 
     await interaction.followup.send(
-    embed=embed,
-    allowed_mentions=discord.AllowedMentions(users=False, roles=False)
-)
+        embed=embed,
+        allowed_mentions=discord.AllowedMentions(users=False, roles=False)  # no pings
+    )
 
 
 app = Flask(__name__)
