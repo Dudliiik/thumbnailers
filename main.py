@@ -481,7 +481,7 @@ async def list_members(interaction: discord.Interaction):
     roles_text = " | ".join(f"<@&{role.id}>" for role in roles)
 
     # Make members clickable (without ping)
-    members_text = " | ".join(f"[{m.name}](https://discord.com/users/{m.id})" for m in members_set)
+    members_text = " | ".join(m.mention for m in members_set)
 
     embed = discord.Embed(
         title="🎨 Members with Artist Roles",
@@ -489,7 +489,10 @@ async def list_members(interaction: discord.Interaction):
         color=discord.Color.blue()
     )
 
-    await interaction.followup.send(embed=embed)
+    await interaction.followup.send(
+    embed=embed,
+    allowed_mentions=discord.AllowedMentions(users=False, roles=False)
+)
 
 
 app = Flask(__name__)
