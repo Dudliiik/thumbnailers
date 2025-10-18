@@ -454,7 +454,7 @@ class Artist(app_commands.Group):
         )
 
 CACHE_FILE = "artist_cache.json"
-REPO_PATH = "/path/to/your/local/repo"  # path where your git repo is cloned
+REPO_PATH = "https://github.com/Dudliiik/thumbnailers"  # path where your git repo is cloned
 
 ROLE_ARTIST = 1102983469933543435
 ROLE_ARTIST_PLUS = 1102982383571042386
