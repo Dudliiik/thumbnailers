@@ -330,12 +330,11 @@ ARTISTS_INFO = {
     },
     804312689609408533: {  # Silent
         "name": "Silent",
-        "description": "Hi, I'm Silent, a 15 year old graphic designer, thumbnail maker, video editor and YouTuber. I create with a passion that goes beyond just money;)",
-        "image": "",
+        "description": "Hey! I'm Silent, an experienced thumbnail designer who strives for perfection with every project! I focus on creating unique work that stands out, actual artworks for your videos that will make it **stand out** amongst the crowd.\n\nI'm trusted by creators such as Jooonah, Flxme, Mango + verified freelancer in Creators Market.\n\nPRICES VARY, MINIMUM 30$",
+        "image": "https://cdn.discordapp.com/attachments/1429195809521664000/1429195810330906777/pfpcirc.png?ex=68f541d2&is=68f3f052&hm=01296a2ef0a2887d440b132cd99e52bd6d9664233a97a472fd6ebc9b7d2f6890&",
         "links": {
             "Portfolio": "https://silentgfx.carrd.co/",
-            "Twitter": "https://x.com/SilentObv",
-            "Fiverr": "https://www.fiverr.com/obvsilent_"
+            "Twitter": "https://x.com/SilentObv"
         },
         "role": "1102982383571042386"
     },
@@ -404,33 +403,33 @@ class Artist(app_commands.Group):
     # --------------------------------------------------------------------------
 
     @app_commands.command(
-    name="list",
-    description="Shows a list of our Artists.",
+        name="list",
+        description="Shows a list of our Artists.",
     )
     async def list(self, interaction: discord.Interaction):
         await interaction.response.defer()
         guild = interaction.guild
-
-        all_members = [m async for m in guild.fetch_members(limit=None)]
+ 
+        await guild.chunk()
 
         embed_description = ""
+
         for role_name, role_id in ARTIST_ROLES.items():
             role = guild.get_role(role_id)
             if not role:
-                 continue
+                continue
 
-            members_with_role = [
-                f"<@{m.id}>" for m in all_members
-                if any(r.id == role.id for r in m.roles)
-            ]
+            members_with_role = [m for m in role.members if not m.bot]
 
             if not members_with_role:
-                 embed_description += f"{role.mention}\nNo members yet.\n\n"
-                 continue
+                embed_description += f"{role.mention}\nNo members yet.\n\n"
+                continue
 
+            # Pre lepšiu čitateľnosť: 2 mená v jednom riadku
             lines = []
-            for i in range(0, len(members_with_role), 2):
-                pair = members_with_role[i:i+2]
+            mentions = [m.mention for m in members_with_role]
+            for i in range(0, len(mentions), 2):
+                pair = mentions[i:i+2]
                 lines.append(" | ".join(pair))
 
             member_list_str = "\n".join(f"- {line}" for line in lines)
@@ -442,13 +441,13 @@ class Artist(app_commands.Group):
             color=discord.Colour.yellow()
         )
         embed.set_footer(
-          text="Thumbnailers",
-          icon_url=interaction.client.user.display_avatar.url
+            text="Thumbnailers",
+            icon_url=interaction.client.user.display_avatar.url
         )
 
         await interaction.followup.send(
-             embed=embed,
-             allowed_mentions=discord.AllowedMentions(users = True, roles=True)
+            embed=embed,
+            allowed_mentions=discord.AllowedMentions(users=True, roles=True)
         )
     
 app = Flask(__name__)
