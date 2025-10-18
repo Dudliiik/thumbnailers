@@ -1,10 +1,9 @@
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 from discord import app_commands
 from dotenv import load_dotenv
 import os
 import asyncio
-import subprocess
 import json
 from threading import Thread
 from cogs.tickets import CloseTicketView
@@ -86,15 +85,6 @@ async def on_member_update(before: discord.Member, after: discord.Member):
             await after.remove_roles(role)
             print(f"Odobral som {after} rolu VIP+")
 
-    # --- ARTIST CACHE LOGIC ---
-    cache = load_cache()
-    user_id = str(after.id)
-    has_roles = any(r.id in ROLE_IDS for r in after.roles)
-    if has_roles:
-        cache[user_id] = [rid for rid in ROLE_IDS if after.guild.get_role(rid) in after.roles]
-    elif user_id in cache:
-        del cache[user_id]
-    save_cache(cache)
 
 # ---------------- Bot event ----------------
 
@@ -102,9 +92,7 @@ GUILD_ID = 1415013619246039082
 
 @client.event
 async def on_ready():
-    for guild in client.guilds:
-        await guild.chunk()  # ensures all members are cached
-        await populate_cache(guild)
+    await guild.chunk()  # ensures all members are cached
 
     artist_group = Artist()
     roles_group = Roles()
@@ -428,7 +416,6 @@ class Artist(app_commands.Group):
                 embed_description += f"{role.mention}\nNo members yet.\n\n"
                 continue
 
-            # Pre lepšiu čitateľnosť: 2 mená v jednom riadku
             lines = []
             mentions = [m.mention for m in members_with_role]
             for i in range(0, len(mentions), 2):
@@ -452,107 +439,6 @@ class Artist(app_commands.Group):
             embed=embed,
             allowed_mentions=discord.AllowedMentions(users=True, roles=True)
         )
-
-CACHE_FILE = "artist_cache.json"
-REPO_PATH = "https://github.com/Dudliiik/thumbnailers"  # path where your git repo is cloned
-
-ROLE_ARTIST = 1102983469933543435
-ROLE_ARTIST_PLUS = 1102982383571042386
-ROLE_PROFESSIONAL_ARTIST = 1102980848606785616
-ROLE_IDS = [ROLE_ARTIST, ROLE_ARTIST_PLUS, ROLE_PROFESSIONAL_ARTIST]
-
-# ---------------- GitHub Push ----------------
-def git_push(filename):
-    try:
-        subprocess.run(["git", "add", filename], cwd=REPO_PATH, check=True)
-        subprocess.run(["git", "commit", "-m", f"Update {filename}"], cwd=REPO_PATH, check=True)
-        subprocess.run(["git", "push"], cwd=REPO_PATH, check=True)
-        print(f"Pushed {filename} to GitHub.")
-    except subprocess.CalledProcessError as e:
-        print(f"Git push failed: {e}")
-
-# ---------------- Persistent Cache ----------------
-def load_cache():
-    if os.path.exists(CACHE_FILE):
-        with open(CACHE_FILE, "r") as f:
-            return json.load(f)
-    return {}
-
-def save_cache(data):
-    with open(CACHE_FILE, "w") as f:
-        json.dump(data, f, indent=4)
-    git_push(CACHE_FILE)  # automatically push after saving
-
-# ---------------- Populate Cache ----------------
-async def populate_cache(guild):
-    cache = load_cache()
-    for role_id in ROLE_IDS:
-        role = guild.get_role(role_id)
-        if not role:
-            continue
-        for member in role.members:
-            if member.bot:
-                continue
-            cache[str(member.id)] = [rid for rid in ROLE_IDS if guild.get_role(rid) in member.roles]
-    save_cache(cache)
-
-    # Fetch all members to populate in-memory cache
-    for member_id in cache:
-        try:
-            await guild.fetch_member(int(member_id))
-        except:
-            pass
-
-# ---------------- /artist_list Command ----------------
-@client.tree.command(name="artist_list", description="List all members with Artist roles (hoverable, no ping)")
-async def artist_list(interaction: discord.Interaction):
-    await interaction.response.defer()
-    guild = interaction.guild
-    cache = load_cache()
-
-    if not cache:
-        await interaction.followup.send("No members found in the cache yet.")
-        return
-
-    role_members = {rid: [] for rid in ROLE_IDS}
-    for member_id, roles in cache.items():
-        for rid in roles:
-            role_members[rid].append(member_id)
-
-    embed_description = ""
-    for rid in ROLE_IDS:
-        role = guild.get_role(rid)
-        if not role:
-            continue
-        members = role_members[rid]
-        if not members:
-            embed_description += f"{role.mention}\nNo members.\n\n"
-            continue
-
-        member_mentions = []
-        for m_id in members:
-            member = guild.get_member(int(m_id))
-            if member:
-                member_mentions.append(member.mention)
-            else:
-                member_mentions.append(f"<@{m_id}>")  # fallback
-
-        lines = []
-        for i in range(0, len(member_mentions), 2):
-            lines.append(" | ".join(member_mentions[i:i+2]))
-        embed_description += f"{role.mention}\n" + "\n".join(f"- {line}" for line in lines) + "\n\n"
-
-    embed = discord.Embed(
-        title="🎨 Our Artists",
-        description=embed_description,
-        color=discord.Color.yellow()
-    )
-    embed.set_footer(text="Thumbnailers", icon_url=client.user.display_avatar.url)
-
-    await interaction.followup.send(
-        embed=embed,
-        allowed_mentions=discord.AllowedMentions(users=False, roles=False)
-    )
 
 
 app = Flask(__name__)
