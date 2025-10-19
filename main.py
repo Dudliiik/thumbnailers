@@ -98,12 +98,13 @@ async def on_ready():
 
     artist_group = Artist()
     roles_group = Roles()
+    members_group = Members()
+    client.tree.add_command(members_group)
     client.tree.add_command(artist_group)
     client.tree.add_command(roles_group)
 
     synced = await client.tree.sync()
     print(f"Synced commands - {len(synced)}")
-
 
 # ----------------------- /role give command  ----------------------- 
 
@@ -135,6 +136,28 @@ class Roles(app_commands.Group):
         await interaction.response.defer()
         await user.remove_roles(role)
         await interaction.followup.send(f"Removed {role.name} from {user.mention}!")
+
+
+class Members(app_commands.Group):
+    def __init__(self):
+        super().__init__(name="member", description="Member Info commands")
+
+    @app_commands.command(
+        name = "info",
+        description= "Sends info about chosen user."
+    )
+    async def info(self, interaction: discord.Interaction, member: discord.Member):
+        await interaction.response.defer()
+        info_embed = discord.Embed(color=discord.Color.green())
+        info_embed.set_thumbnail(url=member.display_avatar.url)
+        info_embed.add_field(name="Member:", value=f"{member.mention}", inline=False)
+        info_embed.add_field(name="Member name", value=f"{member}", inline=False)
+        info_embed.add_field(name="Member id:", value=f"{member.id}", inline=False)
+        info_embed.add_field(name="Joined at:", value=f"{member.joined_at}", inline=False)
+        info_embed.add_field(name="Roles:", value=f"{member.roles}", inline=False)
+        info_embed.set_footer(text="Thumbnailers", icon_url=client.user.display_avatar.url)
+
+        await interaction.followup.send(embed=info_embed)
 
 # ----------------------- /psd add command  ----------------------- 
 
