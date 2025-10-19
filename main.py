@@ -421,11 +421,21 @@ class Artist(app_commands.Group):
                  continue
 
             lines = []
+# Find the max length of names in each "column"
+            col1_length = max((len(members_with_role[i]) for i in range(0, len(members_with_role), 2)), default=0)
+
             for i in range(0, len(members_with_role), 2):
                 pair = members_with_role[i:i+2]
-                lines.append(" | ".join(pair))
 
-            member_list_str = "\n".join(f"- {line}" for line in lines)
+    # Pad first column to fixed width
+                if len(pair) == 2:
+                     line = f"{pair[0]:<{col1_length}} | {pair[1]}"
+                else:
+                     line = f"{pair[0]}"
+                lines.append(line)
+
+# Wrap in triple backticks for monospace
+            member_list_str = "```\n" + "\n".join(f"- {line}" for line in lines) + "\n```"
             embed_description += f"{role.mention}\n{member_list_str}\n\n"
 
         embed = discord.Embed(
