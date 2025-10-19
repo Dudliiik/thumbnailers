@@ -420,22 +420,25 @@ class Artist(app_commands.Group):
                  embed_description += f"{role.mention}\nNo members yet.\n\n"
                  continue
 
+            INVISIBLE = "⠀"  # U+2800 Braille blank
+
             lines = []
 # Find the max length of names in each "column"
-            col1_length = max((len(members_with_role[i]) for i in range(0, len(members_with_role), 2)), default=0)
+            col1_length = max((len(m) for m in members_with_role[::2]), default=0)
 
             for i in range(0, len(members_with_role), 2):
                 pair = members_with_role[i:i+2]
 
     # Pad first column to fixed width
                 if len(pair) == 2:
-                     line = f"{pair[0]:<{col1_length}} | {pair[1]}"
+                     pad = INVISIBLE * (col1_length - len(pair[0]))
+                     line = f"{pair[0]}{pad} | {pair[1]}"
                 else:
                      line = f"{pair[0]}"
-                lines.append(line)
+                lines.append(f"- {line}")
 
 # Wrap in triple backticks for monospace
-            member_list_str = "```\n" + "\n".join(f"- {line}" for line in lines) + "\n```"
+            member_list_str = "\n".join(lines)
             embed_description += f"{role.mention}\n{member_list_str}\n\n"
 
         embed = discord.Embed(
