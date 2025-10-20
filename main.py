@@ -153,14 +153,14 @@ class Members(app_commands.Group):
         roles_display = ", ".join(roles) if roles else "No roles"
 
         info_embed = discord.Embed(
-            title=f"👤 {member.display_name}'s Info",
+            title="",
             color=discord.Color.purple()
         )
 
+        info_embed.set_author(name=member.display_name, icon_url = member.display_avatar.url)
         info_embed.set_thumbnail(url=member.display_avatar.url)
 
-        info_embed.add_field(name="User", value=member.mention, inline=True)
-        info_embed.add_field(name="ID", value=member.id, inline=True)
+        info_embed.add_field(name="User", value=member.mention, inline=True\nname="ID", value=member.id, inline=True)
         info_embed.add_field(name="Joined", value=member.joined_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
         info_embed.add_field(name="Roles", value=roles_display, inline=False)
 
