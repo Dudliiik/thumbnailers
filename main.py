@@ -160,7 +160,7 @@ class Members(app_commands.Group):
         info_embed.set_author(name=member.display_name, icon_url = member.display_avatar.url)
         info_embed.set_thumbnail(url=member.display_avatar.url)
 
-        info_embed.add_field(name="User", value=member.mention, inline=True\nname="ID", value=member.id, inline=True)
+        info_embed.add_field(name="User", value=f"{member.mention}\nID: {member.id}", inline=True)
         info_embed.add_field(name="Joined", value=member.joined_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
         info_embed.add_field(name="Roles", value=roles_display, inline=False)
 
