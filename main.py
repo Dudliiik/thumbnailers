@@ -140,22 +140,34 @@ class Roles(app_commands.Group):
 
 class Members(app_commands.Group):
     def __init__(self):
-        super().__init__(name="member", description="Member Info commands")
+        super().__init__(name="member", description="Member info commands")
 
     @app_commands.command(
-        name = "info",
-        description= "Sends info about chosen user."
+        name="info",
+        description="Displays detailed info about a member."
     )
     async def info(self, interaction: discord.Interaction, member: discord.Member):
         await interaction.response.defer()
-        info_embed = discord.Embed(color=discord.Color.green())
+
+        roles = [role.mention for role in member.roles if role.name != "@everyone"]
+        roles_display = ", ".join(roles) if roles else "No roles"
+
+        info_embed = discord.Embed(
+            title=f"👤 {member.display_name}'s Info",
+            color=discord.Color.purple()
+        )
+
         info_embed.set_thumbnail(url=member.display_avatar.url)
-        info_embed.add_field(name="Member:", value=f"{member.mention}", inline=False)
-        info_embed.add_field(name="Member name", value=f"{member}", inline=False)
-        info_embed.add_field(name="Member id:", value=f"{member.id}", inline=False)
-        info_embed.add_field(name="Joined at:", value=f"{member.joined_at}", inline=False)
-        info_embed.add_field(name="Roles:", value=f"{member.roles}", inline=False)
-        info_embed.set_footer(text="Thumbnailers", icon_url=client.user.display_avatar.url)
+
+        info_embed.add_field(name="User", value=member.mention, inline=True)
+        info_embed.add_field(name="ID", value=member.id, inline=True)
+        info_embed.add_field(name="Joined", value=member.joined_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
+        info_embed.add_field(name="Roles", value=roles_display, inline=False)
+
+        info_embed.set_footer(
+            text="Thumbnailers",
+            icon_url=client.user.display_avatar.url
+        )
 
         await interaction.followup.send(embed=info_embed)
 
