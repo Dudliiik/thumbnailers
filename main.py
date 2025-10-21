@@ -489,17 +489,22 @@ class Artist(app_commands.Group):
     )
     async def artistsreq(self, interaction: discord.Interaction):
 
+        guild = interaction.guild
+        rartist_roles = interaction.guild.get_role(1102983910842970225)
+        artistminus = interaction.guild.get_role(1131144072606777444)
+        artist = interaction.guild.get_role(1102983469933543435)
+        artistplus = interaction.guild.get_role(1102982383571042386)
+        profartist = interaction.guild.get_role(1102980848606785616)
+        reqchannel = interaction.guild.get_channel(1102968475925876876)
+
         req_embed = discord.Embed(
             title="**Designer Role Requirements**",
-            description=f"",
+            description=f"{rartist_roles.mention}\n- Atleast **5 Minecraft** Thumbnails\n\n{artistminus.mention}\n- Beginner level of design\n- Somewhat decent colors & composition\n- Thumbnails - somewhat pleasant to look at\n\n{artist.mention}\n- Decent understanding of Design\n- Be able to navigate Photoshop efficiently\n- Atleast eye-catching thumbnails, pleasant to look at\n\n{artistplus.mention}\n- Great understanding of design\n- Significant knowledge of Photoshop and it's layout\n- Thumbnails should have good composition, be eye-catching and actually work as a thumbnail\n\n{profartist.mention}\n- Strong understanding of design\n- Vast knowledge of Photoshop\n- Able to create most assets without any help\n - Professional portfolio to show\n\nFull info - {reqchannel.mention}",
             color=discord.Color.red()
         )
-        embed.set_footer(text="Thumbnailers", icon_url=client.user.display_avatar.url)
+        req_embed.set_footer(text="Thumbnailers", icon_url=interaction.client.user.display_avatar.url)
 
-        view = discord.ui.View()
-        view.add_item(discord.ui.Button(label="Full Channel", url=url, style=discord.ButtonStyle.link))
-
-        await interaction.response.send_message(embed=embed, view=view)
+        await interaction.response.send_message(embed=req_embed, ephemeral = True)
 
 
 
