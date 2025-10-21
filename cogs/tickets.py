@@ -1,5 +1,3 @@
-toto je moj kod, vies mi ukazat kde to pridat
-
 import discord
 from discord import app_commands
 from discord.ext import commands
