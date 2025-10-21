@@ -173,7 +173,7 @@ class TicketCategory(discord.ui.Select):
             "Role Request": {
                 "title": "Role Request Ticket",
                 "description": "Thank you for contacting support.\n"
-                               "Please refer to <#1102968475925876876> and make sure you send the amount of thumbnails required for the rank you're applying for. "
+                               "Please refer to <#1102968475925876876> and make sure you send the amount of thumbnails required for the rank you're applying for, as and when you open the ticket. "
                                "Make sure you link 5 minecraft based thumbnails at MINIMUM if you apply for one of the artist roles.",
                 "ping": [1156543738861064192],
                 "ping_user": False,
@@ -233,30 +233,12 @@ class TicketCategory(discord.ui.Select):
         content = f"{user.mention} {ping_roles}" if config.get("ping_user", True) else ping_roles
 
         await channel.send(content=content, embed=embed, view=view)
-        await interaction.followup.send(
-            f"Your {categories[category]['ticket_opened_category']} has been opened {channel.mention} ✅",
-            ephemeral=True
-        )
+        await interaction.followup.send(f"Your {categories[category]['ticket_opened_category']} has been opened {channel.mention} ✅", ephemeral=True)
 
         # ---------------- POLL SECTION ----------------
         if category == "Role Request":
             await self.send_official_poll(channel)
-        # ----------------------------------------------
 
-        guild = channel.guild
-        transcript_channel = discord.utils.get(guild.text_channels, name="📝・ticket-transcript")
-        if transcript_channel:
-            transcript_embed = discord.Embed(
-                title="Ticket Created",
-                description=f"{interaction.user.mention} created a new ticket\n\nTicket: `{channel.name}`\nCreator: {interaction.user.mention}",
-                color=discord.Color.blue()
-            )
-            transcript_embed.set_footer(text="Thumbnailers", icon_url=self.bot.user.display_avatar.url)
-            view = discord.ui.View()
-            view.add_item(Button(label="🔗 Channel", url=channel.jump_url))
-            await transcript_channel.send(embed=transcript_embed, view=view)
-
-    # ✅ Funkčná oficiálna poll sekcia
     async def send_official_poll(self, channel: discord.TextChannel):
         url = f"https://discord.com/api/v10/channels/{channel.id}/messages"
         headers = {
@@ -265,9 +247,8 @@ class TicketCategory(discord.ui.Select):
         }
 
         payload = {
-            "content": "",
             "poll": {
-                "question": {"text": "Which artist rank are you applying for?"},
+                "question": {"text": "Vote"},
                 "answers": [
                     {"text": "Rookie Artist"},
                     {"text": "Artist-"},
