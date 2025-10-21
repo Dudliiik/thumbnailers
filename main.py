@@ -205,7 +205,7 @@ async def purge(interaction: discord.Interaction, amount: int):
 async def helpcmnd(interaction:discord.Interaction):
     help_embed = discord.Embed(
         title="", 
-        description=(f"**Member commands**\n\n`- /artist about\n- /artist list\n- /member info`\n\n**Channel commands**\n\n`- !feedback\n- !help\n- !wip`\n\n**Admin Commands**\n\n`- /role remove\n- /role add\n- /purge\n- /psd\n- /closerequest\n- /shutdown`"),
+        description=(f"**Member commands**\n\n`- /artist about\n- /artist list\n- /artist req\n- /member info`\n\n**Channel commands**\n\n`- !feedback\n- !help\n- !wip`\n\n**Admin Commands**\n\n`- /role remove\n- /role add\n- /purge\n- /psd\n- /closerequest\n- /shutdown`"),
         color = discord.Colour.pink()
     )
     help_embed.add_field(name="",value="",inline=True)
