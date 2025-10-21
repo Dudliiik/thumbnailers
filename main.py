@@ -496,7 +496,8 @@ def home():
     return "Bot is running"
 
 def run_web():
-    app.run(host="0.0.0.0", port=10000, debug=False)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port, debug=False)
                       
 # ---------------- Run bot + web ----------------
 
