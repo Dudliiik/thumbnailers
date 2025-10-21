@@ -482,7 +482,27 @@ class Artist(app_commands.Group):
              embed=embed,
              allowed_mentions=discord.AllowedMentions(users = True, roles=True)
         )
-    
+
+    @app_commands.command(
+        name="req",
+        description="Sends the requirements for each of the Artist roles."
+    )
+    async def artistsreq(self, interaction: discord.Interaction):
+
+        req_embed = discord.Embed(
+            title="**Designer Role Requirements**",
+            description=f"",
+            color=discord.Color.red()
+        )
+        embed.set_footer(text="Thumbnailers", icon_url=client.user.display_avatar.url)
+
+        view = discord.ui.View()
+        view.add_item(discord.ui.Button(label="Full Channel", url=url, style=discord.ButtonStyle.link))
+
+        await interaction.response.send_message(embed=embed, view=view)
+
+
+
 app = Flask(__name__)
 TRANSCRIPT_FOLDER = os.path.join(os.getcwd(), "transcripts")
 os.makedirs(TRANSCRIPT_FOLDER, exist_ok=True)
