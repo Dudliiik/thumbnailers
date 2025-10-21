@@ -4,6 +4,7 @@ from discord.ext import commands
 import asyncio
 import os
 import re
+import aiohttp
 import time
 from discord.ui import Button
 from github import Github
@@ -234,6 +235,10 @@ class TicketCategory(discord.ui.Select):
         await channel.send(content=content, embed=embed, view=view)
         await interaction.followup.send(f"Your {categories[category]['ticket_opened_category']} has been opened {channel.mention} ✅", ephemeral=True)
 
+        # ---------------- POLL SECTION ----------------
+        if category == "Role Request":
+            await self.send_official_poll(channel)
+
 # ----------------- Opened Ticket embed ------------------
 
         guild = channel.guild
@@ -248,6 +253,36 @@ class TicketCategory(discord.ui.Select):
             view = discord.ui.View()
             view.add_item(Button(label="🔗 Channel", url=channel.jump_url))
             await transcript_channel.send(embed=transcript_embed, view=view)
+
+     async def send_official_poll(self, channel: discord.TextChannel):
+            url = f"https://discord.com/api/v10/channels/{channel.id}/messages"
+            headers = {
+               "Authorization": f"Bot {self.bot.http.token}",
+               "Content-Type": "application/json"
+            }
+
+            payload = {
+                "poll": {
+                    "question": {"text": "Vote"},
+                    "answers": [
+                        {"text": "Rookie Artist"},
+                        {"text": "Artist-"},
+                        {"text": "Artist"},
+                        {"text": "Artist+"},
+                        {"text": "Professional Artist"}
+                    ],
+                    "allow_multiselect": False,
+                    "layout_type": 1
+               }
+           }
+
+           async with aiohttp.ClientSession() as session:
+                async with session.post(url, headers=headers, json=payload) as resp:
+                    if resp.status in (200, 201):
+                        print(f"[✅ Poll sent in #{channel.name}]")
+                    else:
+                        text = await resp.text()
+                        print(f"[❌ Poll failed: {resp.status}] {text}")
 
 # ---------------- Persistent TicketView ----------------
 
