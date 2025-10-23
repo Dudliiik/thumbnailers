@@ -10,6 +10,26 @@ from cogs.tickets import CloseTicketView
 from flask import Flask, send_from_directory
 
 
+# --- OWNER / PERMISSION OVERRIDE ---
+OWNER_IDS = {859500303186657300}  # <- replace with your Discord user ID (or multiple IDs)
+
+@client.tree.check
+async def global_owner_override(interaction: discord.Interaction):
+    # quick owner bypass hook for app commands
+    if interaction.user.id in OWNER_IDS:
+        return True
+    return True
+
+from discord import app_commands
+def owner_or_permissions(**perms):
+    """Custom decorator for app_commands that lets OWNER_IDS bypass checks."""
+    def predicate(interaction: discord.Interaction):
+        if interaction.user.id in OWNER_IDS:
+            return True
+        guild_perms = interaction.user.guild_permissions
+        return all(getattr(guild_perms, name, False) == value for name, value in perms.items())
+    return app_commands.check(predicate)
+
 # ---------------- Load .env ----------------
 
 load_dotenv()
@@ -37,11 +57,8 @@ async def load_cogs():
         name="shutdown", 
         description="Shuts down the bot.",
         )
+@owner_or_permissions(administrator=True)
 async def shutdown(interaction: discord.Interaction):
-    if not interaction.user.guild_permissions.administrator:
-        await interaction.response.send_message(
-            "Only users with permissions can toggle this command", ephemeral=True)
-        return
     await interaction.response.send_message("🛑 Shut down the bot...", ephemeral=False)
     await client.close()
 
@@ -116,7 +133,7 @@ class Roles(app_commands.Group):
         name="add",
         description="Adds a role to a member.",
     )
-    @discord.app_commands.checks.has_permissions(manage_roles=True)
+    @owner_or_permissions(manage_roles=True)
     async def addRole(self, interaction: discord.Interaction, user: discord.Member, role: discord.Role):
         await interaction.response.defer()
 
@@ -131,7 +148,7 @@ class Roles(app_commands.Group):
         name="remove",
         description="Removes a role from a member.",
     )
-    @discord.app_commands.checks.has_permissions(manage_roles=True)
+    @owner_or_permissions(manage_roles=True)
     async def removeRole(self, interaction: discord.Interaction, user: discord.Member, role: discord.Role):
         await interaction.response.defer()
         await user.remove_roles(role)
@@ -177,7 +194,7 @@ class Members(app_commands.Group):
         name="psd", 
         description="Adds a PSD to the VIP channels."
 )
-@discord.app_commands.checks.has_permissions(manage_messages=True)
+@owner_or_permissions(manage_messages=True)
 async def psd(interaction:discord.Interaction, link: str, image: discord.Attachment, user: discord.User):
     embed = discord.Embed(title=link)
     embed.set_image(url=image.url)
@@ -190,7 +207,7 @@ async def psd(interaction:discord.Interaction, link: str, image: discord.Attachm
     name="purge",
     description="Clears messages",
 )
-@discord.app_commands.checks.has_permissions(manage_messages=True)
+@owner_or_permissions(manage_messages=True)
 async def purge(interaction: discord.Interaction, amount: int):
     await interaction.response.defer()
     deleted = await interaction.channel.purge(limit=amount+1)
