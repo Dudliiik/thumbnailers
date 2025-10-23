@@ -23,16 +23,16 @@ intents.members = True
 client = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
 # --- OWNER / PERMISSION OVERRIDE ---
-OWNER_IDS = {859500303186657300}  # <- replace with your Discord user ID (or multiple IDs)
+# --- OWNER / PERMISSION OVERRIDE ---
+OWNER_IDS = {859500303186657300}  # your Discord ID
 
-@client.tree.check
 async def global_owner_override(interaction: discord.Interaction):
-    # quick owner bypass hook for app commands
     if interaction.user.id in OWNER_IDS:
         return True
     return True
 
-from discord import app_commands
+client.tree.add_check(global_owner_override)
+
 def owner_or_permissions(**perms):
     """Custom decorator for app_commands that lets OWNER_IDS bypass checks."""
     def predicate(interaction: discord.Interaction):
@@ -41,6 +41,7 @@ def owner_or_permissions(**perms):
         guild_perms = interaction.user.guild_permissions
         return all(getattr(guild_perms, name, False) == value for name, value in perms.items())
     return app_commands.check(predicate)
+# --- end override ---
 
 # ---------------- Load cogs ----------------
 
