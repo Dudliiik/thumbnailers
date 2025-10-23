@@ -9,6 +9,18 @@ from threading import Thread
 from cogs.tickets import CloseTicketView
 from flask import Flask, send_from_directory
 
+# ---------------- Load .env ----------------
+
+load_dotenv()
+TOKEN = os.getenv("DISCORD_TOKEN")
+
+# ---------------- Discord bot ----------------
+
+intents = discord.Intents.default()
+intents.message_content = True
+intents.members = True
+
+client = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
 # --- OWNER / PERMISSION OVERRIDE ---
 OWNER_IDS = {859500303186657300}  # <- replace with your Discord user ID (or multiple IDs)
@@ -29,19 +41,6 @@ def owner_or_permissions(**perms):
         guild_perms = interaction.user.guild_permissions
         return all(getattr(guild_perms, name, False) == value for name, value in perms.items())
     return app_commands.check(predicate)
-
-# ---------------- Load .env ----------------
-
-load_dotenv()
-TOKEN = os.getenv("DISCORD_TOKEN")
-
-# ---------------- Discord bot ----------------
-
-intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
-
-client = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
 # ---------------- Load cogs ----------------
 
