@@ -41,31 +41,36 @@ async def get_member_safe(guild, user_id):
             member = None
     return member
 
-async def replace_links(text, msg):
-    guild = msg.guild
+async def get_message_html(guild, channel_id: int, message_id: int):
+    channel = guild.get_channel(channel_id)
+    if not channel:
+        return '<span class="channel-mention">#deleted-channel</span> &gt; 🗨️ message'
 
-    # Discord message links
+    try:
+        msg = await channel.fetch_message(message_id)
+        return f'<span class="channel-mention"># {channel.name}</span> <span class="message-link"> &gt; 🗨️ message</span>'
+    except discord.NotFound:
+        return f'<span class="channel-mention"># {channel.name}</span> &gt; 🗨️ deleted message'
+
+async def replace_discord_links(text, guild):
     msg_link_regex = r'https://discord\.com/channels/(\d+)/(\d+)/(\d+)'
-    def format_discord_link(match):
-        guild_id, channel_id, message_id = match.groups()
-        channel = guild.get_channel(int(channel_id))
-        if channel:
-            return (
-                f'<span class="channel-mention"># {channel.name}</span>'
-                f'<a href="{match.group(0)}" target="_blank" class="message-link"> 🗨️ message</a>'
-            )
+    matches = list(re.finditer(msg_link_regex, text))
+    new_text = ''
+    last_index = 0
+
+    for match in matches:
+        new_text += text[last_index:match.start()]
+        guild_id, channel_id, message_id = map(int, match.groups())
+        if guild.id == guild_id:
+            html = await get_message_html(guild, channel_id, message_id)
+            new_text += html
         else:
-            return (
-                '<span class="channel-mention"># deleted-channel</span>'
-                f'<a href="{match.group(0)}" target="_blank" class="message-link"> 🗨️ message</a>'
-            )
+            # External link → keep clickable
+            new_text += f'<a href="{match.group(0)}" target="_blank">External message link</a>'
+        last_index = match.end()
 
-    text = re.sub(msg_link_regex, format_discord_link, text)
-
-    # Other URLs
-    text = re.sub(r'(https?://[^\s]+)', lambda m: f'<a href="{m.group(1)}" target="_blank">{m.group(1)}</a>', text)
-
-    return text
+    new_text += text[last_index:]
+    return new_text
     
 
 async def replace_mentions(text, msg):
@@ -552,7 +557,7 @@ a:hover {{
 
             if msg.content:
                 content_html = await replace_mentions(msg.content, msg)
-                content_html = await replace_links(content_html, msg)
+                content_html = await replace_discord_links(content_html, msg.guild)
                 content_html = content_html.replace("**", "<b>").replace("*", "<i>").replace("__", "<u>")
                 html += f'<div class="content">{content_html}</div>'
 
