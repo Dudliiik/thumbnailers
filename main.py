@@ -218,7 +218,7 @@ async def ban(interaction: discord.Interaction, member: discord.Member, reason: 
     except:
         await interaction.response.send_message(f"Not able to ban {member.name}.", ephemeral = True)
     else:
-        await interaction.response.send_message(f"Successfuly banned {member.mention} for {reason}!)
+        await interaction.response.send_message(f"Successfuly banned {member.mention} for {reason}!")
 
 
 # ------------------ /purge command ----------------------------
