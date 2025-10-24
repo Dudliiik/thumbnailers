@@ -41,9 +41,40 @@ async def get_member_safe(guild, user_id):
             member = None
     return member
 
-async def replace_links(text):
+async def replace_links(text, msg):
+    guild = msg.guild
+
+    # Regex for Discord message links
+    msg_link_regex = r'https://discord\.com/channels/(\d+)/(\d+)/(\d+)'
+
+    def format_discord_link(match):
+        guild_id, channel_id, message_id = match.groups()
+
+        # If the message is from the same guild
+        if str(guild.id) == guild_id:
+            channel = guild.get_channel(int(channel_id))
+            if channel:
+                return (
+                    f'<span class="channel-mention"># {channel.name}</span>'
+                    f'<span class="message-link"> &gt; 🗨️ message</span>'
+                )
+            else:
+                return (
+                    '<span class="channel-mention"># deleted-channel</span>'
+                    '<span class="message-link"> &gt; 🗨️ message</span>'
+                )
+        else:
+            # External Discord link → leave clickable
+            return f'<a href="{match.group(0)}" target="_blank" class="external-link">External message link</a>'
+
+    # Replace message links first
+    text = re.sub(msg_link_regex, format_discord_link, text)
+
+    # Replace all other URLs with clickable links
     url_regex = r'(https?://[^\s]+)'
-    return re.sub(url_regex, r'<a href="\1" target="_blank">\1</a>', text)
+    text = re.sub(url_regex, r'<a href="\1" target="_blank">\1</a>', text)
+
+    return text
 
 async def replace_mentions(text, msg):
     guild = msg.guild
@@ -374,26 +405,133 @@ class Tickets(commands.Cog):
 <meta charset="UTF-8">
 <title>Transcript - {channel}</title>
 <style>
-html, body {{ font-family: "gg sans", Arial, sans-serif; background: #36393E; color: #dcddde; margin: 4px; padding: 0; overflow-x: hidden; }}
-.header {{ background-color: #36393E; color: #fff; font-size: 20px; font-weight: bold; padding: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }}
-.messages {{ margin: 0; padding: 10px; max-width: 1000px; }}
-.message {{ display: flex; width: 100%; max-width: none; margin-bottom: 13px; padding: 4px 4px; box-sizing: border-box;}}
-.message:hover{{background-color: #32353A; width: 400%;}}
-.avatar {{ width: 42px; height: 42px; border-radius: 50%; margin-right: 15px; flex-shrink: 0; }}
-.message-content {{ display: flex; flex-direction: column; max-width: 600px; }}
-.time {{ font-size: 0.75em; color: #72767d; margin-left: 12px; }}
-.content {{ margin-top: 2px; white-space: pre-wrap; }}
-.embed {{ border-left: 4px solid #4f545c; background:#2F3136; padding:10px; border-radius:4px; max-width:500px; }}
-.attachment {{ margin-top: 5px; margin-left: 50px; }}
-.attachment img, .embed img {{ max-width: 300px; max-height: 300px; display: block; margin-top:5px; border-radius:4px; }}
-.mention, .role-mention, .channel-mention {{ border-radius: 4px; padding: 2px 2px; font-size: 0.95em; font-weight: 500; white-space: nowrap; }}
-.mention {{ background-color: rgba(88, 101, 242, 0.3); color: #A5B5F9; }}
-.role-mention {{ background-color: rgba(255, 255, 255, 0.1); color: inherit; }}
-.channel-mention {{ background-color: rgba(88, 101, 242, 0.3); color: #A5B5F9; }}
-button {{ margin-top: 4px; padding: 8px 12px; border-radius: 4px; border:none; cursor:pointer; background-color:#5865F2; color:white; }}
-button:hover{{ filter: brightness(1.2); }}
-a {{ color: #00b0f4; text-decoration: none; }}
-a:hover {{ text-decoration: underline; }}
+html, body {{
+  font-family: "gg sans", Arial, sans-serif;
+  background: #36393E;
+  color: #dcddde;
+  margin: 4px;
+  padding: 0;
+  overflow-x: hidden;
+}}
+.header {{
+  background-color: #36393E;
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}}
+.messages {{
+  margin: 0;
+  padding: 10px;
+  max-width: 1000px;
+}}
+.message {{
+  display: flex;
+  width: 100%;
+  max-width: none;
+  margin-bottom: 13px;
+  padding: 4px 4px;
+  box-sizing: border-box;
+}}
+.message:hover {{
+  background-color: #32353A;
+  width: 400%;
+}}
+.avatar {{
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  margin-right: 15px;
+  flex-shrink: 0;
+}}
+.message-content {{
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+}}
+.time {{
+  font-size: 0.75em;
+  color: #72767d;
+  margin-left: 12px;
+}}
+.content {{
+  margin-top: 2px;
+  white-space: pre-wrap;
+}}
+.embed {{
+  border-left: 4px solid #4f545c;
+  background: #2F3136;
+  padding: 10px;
+  border-radius: 4px;
+  max-width: 500px;
+}}
+.attachment {{
+  margin-top: 5px;
+  margin-left: 50px;
+}}
+.attachment img, .embed img {{
+  max-width: 300px;
+  max-height: 300px;
+  display: block;
+  margin-top: 5px;
+  border-radius: 4px;
+}}
+.mention, .role-mention, .channel-mention {{
+  border-radius: 4px;
+  padding: 2px 2px;
+  font-size: 0.95em;
+  font-weight: 500;
+  white-space: nowrap;
+}}
+.mention {{
+  background-color: rgba(88, 101, 242, 0.3);
+  color: #A5B5F9;
+}}
+.role-mention {{
+  background-color: rgba(255, 255, 255, 0.1);
+  color: inherit;
+}}
+.channel-mention {{
+  background-color: rgba(88, 101, 242, 0.3);
+  color: #A5B5F9;
+}}
+
+/* 🪄 Added styles for message-style Discord links */
+.message-link {{
+  color: #b9bbbe;
+  font-size: 0.95em;
+  margin-left: 4px;
+}}
+
+.external-link {{
+  color: #00b0f4;
+  text-decoration: none;
+}}
+
+.external-link:hover {{
+  text-decoration: underline;
+}}
+
+button {{
+  margin-top: 4px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  background-color: #5865F2;
+  color: white;
+}}
+button:hover {{
+  filter: brightness(1.2);
+}}
+a {{
+  color: #00b0f4;
+  text-decoration: none;
+}}
+a:hover {{
+  text-decoration: underline;
+}}
 </style>
 </head>
 <body>
@@ -422,7 +560,7 @@ a:hover {{ text-decoration: underline; }}
 
             if msg.content:
                 content_html = await replace_mentions(msg.content, msg)
-                content_html = await replace_links(content_html)
+                content_html = await replace_links(content_html, msg)
                 content_html = content_html.replace("**", "<b>").replace("*", "<i>").replace("__", "<u>")
                 html += f'<div class="content">{content_html}</div>'
 
