@@ -44,37 +44,29 @@ async def get_member_safe(guild, user_id):
 async def replace_links(text, msg):
     guild = msg.guild
 
-    # Regex for Discord message links
+    # Discord message links
     msg_link_regex = r'https://discord\.com/channels/(\d+)/(\d+)/(\d+)'
-
     def format_discord_link(match):
         guild_id, channel_id, message_id = match.groups()
-
-        # If the message is from the same guild
-        if str(guild.id) == guild_id:
-            channel = guild.get_channel(int(channel_id))
-            if channel:
-                return (
-                    f'<span class="channel-mention"># {channel.name}</span>'
-                    f'<span class="message-link"> &gt; 🗨️ message</span>'
-                )
-            else:
-                return (
-                    '<span class="channel-mention"># deleted-channel</span>'
-                    '<span class="message-link"> &gt; 🗨️ message</span>'
-                )
+        channel = guild.get_channel(int(channel_id))
+        if channel:
+            return (
+                f'<span class="channel-mention"># {channel.name}</span>'
+                f'<a href="{match.group(0)}" target="_blank" class="message-link"> 🗨️ message</a>'
+            )
         else:
-            # External Discord link → leave clickable
-            return f'<a href="{match.group(0)}" target="_blank" class="external-link">External message link</a>'
+            return (
+                '<span class="channel-mention"># deleted-channel</span>'
+                f'<a href="{match.group(0)}" target="_blank" class="message-link"> 🗨️ message</a>'
+            )
 
-    # Replace message links first
     text = re.sub(msg_link_regex, format_discord_link, text)
 
-    # Replace all other URLs with clickable links
-    url_regex = r'(https?://[^\s]+)'
-    text = re.sub(url_regex, r'<a href="\1" target="_blank">\1</a>', text)
+    # Other URLs
+    text = re.sub(r'(https?://[^\s]+)', lambda m: f'<a href="{m.group(1)}" target="_blank">{m.group(1)}</a>', text)
 
     return text
+    
 
 async def replace_mentions(text, msg):
     guild = msg.guild
