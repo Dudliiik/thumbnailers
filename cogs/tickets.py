@@ -163,7 +163,7 @@ class TicketCategory(discord.ui.Select):
                 "title": "Partnership Ticket",
                 "description": "Thanks {user.name} for contacting the partnership team of **Thumbnailers**!\n"
                                "Send your server's ad, and the ping you're expecting with any other additional details.\n"
-                               "Our team will respond to you shortly.",
+                               "Our team will respond to you shortly.\n\nPartnership Info - https://discord.com/channels/1102968474894082081/1102968475925876870/1235930534799212575",
                 "ping": [1136118197725171813, 1102975816062730291],
                 "ping_user": True,
                 "discord_category": "Partnership Tickets",
