@@ -255,7 +255,7 @@ async def unban(interaction: discord.Interaction, user: str):
     await interaction.followup.send("No banned user found with that name / ID.")
 
 @unban.error
-async def unban_error(interaction: discord.Interaction):
+async def unban_error(interaction: discord.Interaction, error):
     if isinstance(error, commands.CheckFailure):
         await interaction.responde.send_message("You don't have the permissions required!", ephemeral = True)
 
