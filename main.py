@@ -227,6 +227,7 @@ async def ban(interaction: discord.Interaction, member: discord.Member, reason: 
 )
 @owner_or_permissions(ban_members=True)
 async def unban(interaction: discord.Interaction, member: discord.User, reason: str = None):
+    await interaction.response.defer()
     reason = reason or "No reason given."
     guild = interaction.guild
     assert guild is not None
@@ -235,16 +236,16 @@ async def unban(interaction: discord.Interaction, member: discord.User, reason: 
         # Fetch the ban object to check if the user is banned
         ban_entry = await guild.fetch_ban(discord.Object(id=member))
     except discord.NotFound:
-        await interaction.response.send_message(f"This member is not banned.", ephemeral=True)
+        await interaction.followup.send(f"This member is not banned.", ephemeral=True)
         return
 
     try:
         # Unban the user
         await guild.unban(discord.Object(id=member), reason=reason)
     except discord.Forbidden:
-        await interaction.response.send_message(f"Not able to unban this member.", ephemeral=True)
+        await interaction.followup.send(f"Not able to unban this member.", ephemeral=True)
     else:
-        await interaction.response.send_message(f"`Unbanned` <@{member}>.")
+        await interaction.followup.send(f"`Unbanned` <@{member}>.")
 # ------------------ /purge command ----------------------------
 
 @client.tree.command(
