@@ -225,7 +225,9 @@ async def ban(interaction: discord.Interaction, member: discord.Member, reason: 
 async def banlist(interaction: discord.Interaction):
     try:
         await interaction.response.defer()
-        bans = list(await interaction.guild.bans())
+        
+        # Correct way to get all bans
+        bans = [entry async for entry in interaction.guild.bans()]
 
         if not bans:
             await interaction.followup.send("No members banned.")
@@ -254,7 +256,8 @@ async def unban(interaction: discord.Interaction, user: str):
         except ValueError:
             pass
 
-        bans = list(await interaction.guild.bans())  # force list to avoid generator errors
+        # Correct way to get bans as a list
+        bans = [entry async for entry in interaction.guild.bans()]
 
         # By ID
         if target:
