@@ -220,7 +220,7 @@ async def ban(interaction: discord.Interaction, member: discord.Member, reason: 
     else:
         await interaction.response.send_message(f"`Banned` {member.mention} `for **{reason}**`")
 
-#------------------- /unban @client.tree.command(
+#------------------- /unban command ----------
 @client.tree.command(name="unban", description="Unbans a member.")
 @owner_or_permissions(ban_members=True)
 async def unban(interaction: discord.Interaction, user: str):
@@ -233,7 +233,64 @@ async def unban(interaction: discord.Interaction, user: str):
         except ValueError:
             pass
 
+        # Force bans into a list
+        bans = list(await interaction.guild.bans())
+
+        # By ID
+        if target:
+            for entry in bans:
+                if entry.user.id == target.id:
+                    await interaction.guild.unban(entry.user)
+                    await interaction.followup.send(f"`Unbanned` **{entry.user}**")
+                    return
+            await interaction.followup.send("Not a banned member.")
+            return
+
+        # By name
+        for entry in bans:
+            if entry.user.name.lower() == user.lower():
+                await interaction.guild.unban(entry.user)
+                await interaction.followup.send(f"`Unbanned` **{entry.user}**")
+                return
+
+        await interaction.followup.send("No banned user found with that name / ID.")
+
+    except Exception as e:
+        await interaction.followup.send(f"Failed to unban: {e}", ephemeral=True)
+
+# ----------------- /banlist command ------------------
+@client.tree.command(name="banlist", description="Shows a list of all banned members (Admin only).")
+@owner_or_permissions(manage_members=True)
+async def banlist(interaction: discord.Interaction):
+    try:
+        await interaction.response.defer()
         bans = await interaction.guild.bans()
+
+        if not bans:
+            await interaction.followup.send("No members banned.")
+            return
+
+        ban_list = [f"{entry.user.name} | ({entry.user.id})" for entry in bans]
+        message = "\n".join(ban_list)
+
+        # Discord messages can't exceed 2000 characters
+        if len(message) > 1999:
+            message = message[:1999] + "\n...and more"
+
+        await interaction.followup.send(f"{message}")
+
+    except Exception as e:
+        await interaction.followup.send(f"Failed to fetch bans: {e}", ephemeral=True): discord.Interaction, member: str):
+    try:
+        await interaction.response.defer()
+
+        target = None
+        try:
+            target = await client.fetch_user(int(member))
+        except ValueError:
+            pass
+
+        bans = list(await interaction.guild.bans())
 
         # By ID
         if target:
@@ -264,7 +321,7 @@ async def unban(interaction: discord.Interaction, user: str):
 async def banlist(interaction: discord.Interaction):
     try:
         await interaction.response.defer()
-        bans = await interaction.guild.bans()
+        bans = list(await interaction.guild.bans())
 
         if not bans:
             await interaction.followup.send("No members banned.")
