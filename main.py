@@ -210,7 +210,7 @@ async def psd(interaction:discord.Interaction, link: str, image: discord.Attachm
     name = "ban",
     description = "Bans a member."
 )
-@owner_or_permissions(manage_members=True)
+@owner_or_permissions(ban_members=True)
 async def ban(interaction: discord.Interaction, member: discord.Member, reason: str = None):
     reason = reason or "No reason given."
     try:
@@ -218,9 +218,67 @@ async def ban(interaction: discord.Interaction, member: discord.Member, reason: 
     except:
         await interaction.response.send_message(f"Not able to ban {member.name}.", ephemeral = True)
     else:
-        await interaction.response.send_message(f"`Banned {member.mention} for {reason}!`")
+        await interaction.response.send_message(f"`Banned` {member.mention} `for **{reason}**`")
 
+#------------------- /unban command ------------------
+@client.tree.command(
+    name="unban", 
+    description="Unbans a member."
+)
+@owner_or_permissions(ban_members=True)
+async def unban(interaction: discord.Interaction, user: str):
+    guild = interaction.guild
+    await interaction.response.defer()
 
+    try:
+        target = await bot.fetch_user(int(user))
+    except ValueError:
+        target = None
+
+    bans = await guild.bans()
+
+    if target:
+        for entry in bans:
+            if entry.user.id == target.id:
+                await guild.unban(entry.user)
+                await interaction.followup.send(f"`Unbanned` **{entry.user}**")
+                return
+        await interaction.followup.send("❌ That user isn't banned.")
+        return
+
+    for entry in bans:
+        if entry.user.name.lower() == user.lower():
+            await guild.unban(entry.user)
+            await interaction.followup.send(f"`Unbanned` **{entry.user}**")
+            return
+
+    await interaction.followup.send("No banned user found with that name / ID.")
+
+@unban.error
+async def unban_error(interaction: discord.Interaction):
+    if isinstance(error, commands.CheckFailure):
+        await interaction.responde.send_message("You don't have the permissions required!", ephemeral = True)
+
+# ----------------- /bańist command ------------------
+@client.tree.command(
+    name = "banlist",
+    description = "Shows a list of all banned members (Admin only)."
+)
+@owner_or_permissions(ban_members = True)
+async def banlist(interaction: discord.Interaction):
+    guild = interaction.guild
+    await interaction.response.defer()
+
+    bans = await guild.bans()
+
+    if not bans:
+        await interaction.followup.send("No members banned.")
+        return
+
+    ban_list = [f"{entry.user.name} | ({entry.user.id})" for entry in bans]
+    message = "\n".join(ban_list)
+
+    await interaction.followup.send(f"{message}")
 # ------------------ /purge command ----------------------------
 
 @client.tree.command(
