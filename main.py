@@ -226,7 +226,7 @@ async def ban(interaction: discord.Interaction, member: discord.Member, reason: 
     description="Unbans a member."
 )
 @owner_or_permissions(ban_members=True)
-async def unban(interaction: discord.Interaction, member: int, reason: str = None):
+async def unban(interaction: discord.Interaction, member: discord.User, reason: str = None):
     reason = reason or "No reason given."
     guild = interaction.guild
     assert guild is not None
