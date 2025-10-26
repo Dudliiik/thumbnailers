@@ -231,7 +231,7 @@ async def unban(interaction: discord.Interaction, user: str):
     await interaction.response.defer()
 
     try:
-        target = await bot.fetch_user(int(user))
+        target = await client.fetch_user(int(user))
     except ValueError:
         target = None
 
@@ -257,7 +257,7 @@ async def unban(interaction: discord.Interaction, user: str):
 @unban.error
 async def unban_error(interaction: discord.Interaction, error):
     if isinstance(error, commands.CheckFailure):
-        await interaction.responde.send_message("You don't have the permissions required!", ephemeral = True)
+        await interaction.response.send_message("You don't have the permissions required!", ephemeral = True)
 
 # ----------------- /bańist command ------------------
 @client.tree.command(
