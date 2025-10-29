@@ -44,7 +44,7 @@ class Help(commands.Cog):
             m = int(remaining % 3600 // 60)
             s = int(remaining % 60)
             
-            bot_msg = await ctx.send(f"You can ping WIP again in {h}h {m}m {s}s!")
+            bot_msg = await ctx.send(f"You can ping Help again in {h}h {m}m {s}s!")
             cooldown_messages[ctx.message.id] = bot_msg.id
             return
 
