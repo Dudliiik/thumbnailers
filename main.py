@@ -139,12 +139,18 @@ class Roles(app_commands.Group):
     @owner_or_permissions(manage_roles=True)
     async def addRole(self, interaction: discord.Interaction, user: discord.Member, role: discord.Role):
         await interaction.response.defer()
+        try:
+            if role >= interaction.guild.me.top_role:
+                await interaction.followup.send("I cannot assign this role because it is higher than my highest role!")
+                return
 
-        if role in user.roles:
-            await interaction.followup.send(f"{user.mention} already has the role {role.name}")
-        else:
-            await user.add_roles(role)
-            await interaction.followup.send(f"Added {role.name} to {user.mention}!")
+            if role in user.roles:
+                await interaction.followup.send(f"{user.mention} already has the role {role.name}")
+            else:
+                await user.add_roles(role)
+                await interaction.followup.send(f"Added {role.name} to {user.mention}!")
+        except discord.Forbidden:
+            await interaction.followup.send(f"I cannot mamage the role {role.name}")
 
 
     @app_commands.command(
@@ -154,9 +160,20 @@ class Roles(app_commands.Group):
     @owner_or_permissions(manage_roles=True)
     async def removeRole(self, interaction: discord.Interaction, user: discord.Member, role: discord.Role):
         await interaction.response.defer()
-        await user.remove_roles(role)
-        await interaction.followup.send(f"Removed {role.name} from {user.mention}!")
-
+        try:
+            if role >= interaction.guild.me.top_role:
+                await interaction.followup.send("I cannot remove this role because it is higher than my highest role!")
+                return
+                
+            if role not in user.roles:
+                 await interaction.followup.send(f"{user.mention} doesn't have this role")
+            else:
+                 await user.remove_roles(role)
+                 await interaction.followup.send(f"Removed {role.name} from {user.mention}!")
+        except discord.Forbidden:
+            await interaction.followup.send(f"I cannot manage the role {role.mention}")
+            
+        
 
 class Members(app_commands.Group):
     def __init__(self):
