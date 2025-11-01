@@ -70,43 +70,49 @@ async def shutdown(interaction: discord.Interaction):
 BOOST_FILE = "boost_counts.json"
 
 def load_boosts():
+    """Load boost data from JSON file."""
     if os.path.exists(BOOST_FILE):
-        with open(BOOST_FILE, "r") as f:
-            try:
+        try:
+            with open(BOOST_FILE, "r") as f:
                 return json.load(f)
-            except json.JSONDecodeError:
-                return {}
+        except (json.JSONDecodeError, OSError):
+            print("⚠️ Warning: Failed to read boost file, resetting data.")
+            return {}
     return {}
 
 def save_boosts(data):
-    with open(BOOST_FILE, "w") as f:
-        json.dump(data, f, indent=4)
+    """Save boost data to JSON file."""
+    try:
+        with open(BOOST_FILE, "w") as f:
+            json.dump(data, f, indent=4)
+    except OSError as e:
+        print(f"⚠️ Error saving boosts: {e}")
 
 boost_counts = load_boosts()
 
 @client.event
 async def on_member_update(before: discord.Member, after: discord.Member):
-    # Detekcia nového boostu (keď user boostne server)
+    # Detect when a user newly boosts
     if before.premium_since is None and after.premium_since is not None:
         user_id = str(after.id)
         boost_counts[user_id] = boost_counts.get(user_id, 0) + 1
         save_boosts(boost_counts)
 
-        print(f"{after} boostol server ({boost_counts[user_id]}.x)")
+        print(f"{after} boosted the server ({boost_counts[user_id]}x)")
 
-        # Ak je to druhý boost
+        # Give VIP+ on 2nd boost
         if boost_counts[user_id] == 2:
             role = discord.utils.get(after.guild.roles, name="VIP+")
             if role and role not in after.roles:
                 await after.add_roles(role)
-                print(f"Dal som {after} rolu VIP+")
+                print(f"Gave {after} the VIP+ role")
 
-    # Ak user prestane boostovať
+    # Detect when a user stops boosting
     elif before.premium_since is not None and after.premium_since is None:
         role = discord.utils.get(after.guild.roles, name="VIP+")
         if role and role in after.roles:
             await after.remove_roles(role)
-            print(f"Odobral som {after} rolu VIP+")
+            print(f"Removed VIP+ from {after}")
 
 # ---------------- Bot event ----------------
 
