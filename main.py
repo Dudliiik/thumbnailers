@@ -151,12 +151,12 @@ class Roles(app_commands.Group):
                 return
 
             if role in user.roles:
-                await interaction.followup.send(f"{user.mention} already has the role {role.name}")
+                await interaction.followup.send(f"{user.name} already has the role {role.name}")
             else:
                 await user.add_roles(role)
-                await interaction.followup.send(f"Added {role.name} to {user.mention}!")
+                await interaction.followup.send(f"Added {role.name} to {user.name}!")
         except discord.Forbidden:
-            await interaction.followup.send(f"I cannot mamage the role {role.name}")
+            await interaction.followup.send(f"I cannot manage the role {role.name}")
 
 
     @app_commands.command(
@@ -172,12 +172,12 @@ class Roles(app_commands.Group):
                 return
                 
             if role not in user.roles:
-                 await interaction.followup.send(f"{user.mention} doesn't have this role")
+                 await interaction.followup.send(f"{user.name} doesn't have this role")
             else:
                  await user.remove_roles(role)
-                 await interaction.followup.send(f"Removed {role.name} from {user.mention}!")
+                 await interaction.followup.send(f"Removed {role.name} from {user.name}!")
         except discord.Forbidden:
-            await interaction.followup.send(f"I cannot manage the role {role.mention}")
+            await interaction.followup.send(f"I cannot manage the role {role.name}")
             
         
 
@@ -187,7 +187,7 @@ class Members(app_commands.Group):
 
     @app_commands.command(
         name="info",
-        description="Displays detailed info about a member."
+        description="Sends info about a member."
     )
     async def info(self, interaction: discord.Interaction, member: discord.Member):
         await interaction.response.defer()
