@@ -22,18 +22,10 @@ intents.members = True
 
 client = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
-# --- OWNER / PERMISSION OVERRIDE (works on all 2.x variants) ---
-OWNER_IDS = {859500303186657300}  # your Discord ID (or multiple: {id1, id2})
-
-from discord import app_commands
+# --- Dudles perms ---
+OWNER_IDS = {859500303186657300} 
 
 def owner_or_permissions(**perms):
-    """
-    Decorator for app_commands:
-    - If the invoking user is in OWNER_IDS -> allow always
-    - Otherwise check the provided guild permissions (like manage_roles=True)
-    Usage: @owner_or_permissions(manage_roles=True)
-    """
     async def predicate(interaction: discord.Interaction) -> bool:
         # owner bypass
         if interaction.user.id in OWNER_IDS:
@@ -53,7 +45,6 @@ async def load_cogs():
         if filename.endswith(".py"):
             await client.load_extension(f"cogs.{filename[:-3]}")
 
-
 # ---------------- /shutdown command ----------------
 
 @client.tree.command(
@@ -64,55 +55,6 @@ async def load_cogs():
 async def shutdown(interaction: discord.Interaction):
     await interaction.response.send_message("🛑 Shut down the bot...", ephemeral=False)
     await client.close()
-
-# ---------------- VIP+ Persistent Boost Tracking ----------------
-
-BOOST_FILE = "boost_counts.json"
-
-def load_boosts():
-    """Load boost data from JSON file."""
-    if os.path.exists(BOOST_FILE):
-        try:
-            with open(BOOST_FILE, "r") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError):
-            print("⚠️ Warning: Failed to read boost file, resetting data.")
-            return {}
-    return {}
-
-def save_boosts(data):
-    """Save boost data to JSON file."""
-    try:
-        with open(BOOST_FILE, "w") as f:
-            json.dump(data, f, indent=4)
-    except OSError as e:
-        print(f"⚠️ Error saving boosts: {e}")
-
-boost_counts = load_boosts()
-
-@client.event
-async def on_member_update(before: discord.Member, after: discord.Member):
-    # Detect when a user newly boosts
-    if before.premium_since is None and after.premium_since is not None:
-        user_id = str(after.id)
-        boost_counts[user_id] = boost_counts.get(user_id, 0) + 1
-        save_boosts(boost_counts)
-
-        print(f"{after} boosted the server ({boost_counts[user_id]}x)")
-
-        # Give VIP+ on 2nd boost
-        if boost_counts[user_id] == 2:
-            role = discord.utils.get(after.guild.roles, name="VIP+")
-            if role and role not in after.roles:
-                await after.add_roles(role)
-                print(f"Gave {after} the VIP+ role")
-
-    # Detect when a user stops boosting
-    elif before.premium_since is not None and after.premium_since is None:
-        role = discord.utils.get(after.guild.roles, name="VIP+")
-        if role and role in after.roles:
-            await after.remove_roles(role)
-            print(f"Removed VIP+ from {after}")
 
 # ---------------- Bot event ----------------
 
@@ -565,7 +507,7 @@ class Artist(app_commands.Group):
 
         await interaction.response.send_message(embed=req_embed, ephemeral = True)
 
-
+# ---------------- Flask ----------------
 
 app = Flask(__name__)
 TRANSCRIPT_FOLDER = os.path.join(os.getcwd(), "transcripts")
