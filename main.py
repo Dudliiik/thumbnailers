@@ -168,22 +168,6 @@ async def psd(interaction:discord.Interaction, link: str, image: discord.Attachm
     embed.set_image(url=image.url)
     embed.set_footer(text=f"Provided by {user}")
     await interaction.response.send_message(embed=embed)
-
-# ------------------- /ban command --------------
-
-@client.tree.command(
-    name = "ban",
-    description = "Bans a member."
-)
-@owner_or_permissions(ban_members=True)
-async def ban(interaction: discord.Interaction, member: discord.Member, reason: str = None):
-    reason = reason or "No reason given."
-    try:
-        await member.ban(reason = reason)
-    except:
-        await interaction.response.send_message(f"Not able to ban {member.name}.", ephemeral = True)
-    else:
-        await interaction.response.send_message(f"`Banned` {member.mention} `for **{reason}**`")
         
 # ------------------ /purge command ----------------------------
 
