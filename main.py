@@ -98,7 +98,7 @@ async def on_message(message: discord.Message):
         except discord.Forbidden:
             pass
 
-        channel = message.guild.get_channel(THUMBNAILS_ID)
+        channel = message.guild.get_channel(message.channel.id)
 
         try:
             await message.author.send(f"Hey, it seems you attached more Thumbnails in {channel.mention} than allowed!\nPlease make sure to attach at most **2 Thumbnails** next time.")
