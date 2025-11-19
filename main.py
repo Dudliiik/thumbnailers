@@ -60,6 +60,8 @@ async def shutdown(interaction: discord.Interaction):
 
 GUILD_ID = 1415013619246039082
 
+THUMBNAILS_ID = 1440749571683647578
+
 @client.event
 async def on_ready():
     guild = discord.Object(id=GUILD_ID)
@@ -74,6 +76,31 @@ async def on_ready():
     synced = await client.tree.sync()
     print(f"Synced commands - {len(synced)}")
 
+async def on_message(message: discord.Message):
+    if message.author.bot:
+        return
+    if message.channel.id != THUMBNAILS_ID:
+        return
+
+    images = [
+        a for a in message.attachments
+        if a.content_type and a.content_type.startswith("image/")
+    ]
+    image_count = len(images)
+
+    if image_count > 2:
+        try:
+            await message.delete()
+        except discord.Forbidden:
+            pass
+
+        try:
+            await message.author.send("Hey, it seems you attached more Thumbnails than the limit is!\nNext time, please attach maximum of **2 Thumbnails**.")
+        except discord.Forbidden:
+            pass
+
+    await client.process_commands(message)
+                                      
 # ----------------------- /role give command  ----------------------- 
 
 class Roles(app_commands.Group):
