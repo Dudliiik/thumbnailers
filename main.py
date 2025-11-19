@@ -60,7 +60,7 @@ async def shutdown(interaction: discord.Interaction):
 
 GUILD_ID = 1415013619246039082
 
-THUMBNAILS_ID = 1440749571683647578
+THUMBNAILS_ID = {1440749571683647578, 1112104514808455168}
 
 IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp")
 
@@ -83,7 +83,7 @@ async def on_ready():
 async def on_message(message: discord.Message):
     if message.author.bot:
         return
-    if message.channel.id != THUMBNAILS_ID:
+    if message.channel.id not in THUMBNAILS_ID:
         return
 
     images = [
