@@ -62,6 +62,8 @@ GUILD_ID = 1415013619246039082
 
 THUMBNAILS_ID = 1440749571683647578, 1112104514808455168
 
+IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp")
+
 @client.event
 async def on_ready():
     guild = discord.Object(id=GUILD_ID)
@@ -86,7 +88,7 @@ async def on_message(message: discord.Message):
 
     images = [
         a for a in message.attachments
-        if a.content_type and a.content_type.startswith("image/")
+        if a.filename.lower().endswith(IMAGE_EXTS)
     ]
     image_count = len(images)
 
