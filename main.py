@@ -83,7 +83,7 @@ async def on_ready():
 async def on_message(message: discord.Message):
     if message.author.bot:
         return
-    if message.channel.id != THUMBNAILS_ID:
+    if message.channel.id not in THUMBNAILS_ID:
         return
 
     images = [
