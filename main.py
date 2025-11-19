@@ -60,7 +60,7 @@ async def shutdown(interaction: discord.Interaction):
 
 GUILD_ID = 1415013619246039082
 
-THUMBNAILS_ID = 1440749571683647578, 1112104514808455168
+THUMBNAILS_ID = {1440749571683647578, 1112104514808455168}
 
 IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp")
 
