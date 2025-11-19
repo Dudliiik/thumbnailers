@@ -60,7 +60,7 @@ async def shutdown(interaction: discord.Interaction):
 
 GUILD_ID = 1415013619246039082
 
-THUMBNAILS_ID = {1440749571683647578, 1112104514808455168}
+THUMBNAILS_ID = 1440749571683647578
 
 IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp")
 
@@ -83,7 +83,7 @@ async def on_ready():
 async def on_message(message: discord.Message):
     if message.author.bot:
         return
-    if message.channel.id not in THUMBNAILS_ID:
+    if message.channel.id != THUMBNAILS_ID:
         return
 
     images = [
@@ -98,8 +98,10 @@ async def on_message(message: discord.Message):
         except discord.Forbidden:
             pass
 
+        channel = message.guild.get_channel(THUMBNAILS_ID)
+
         try:
-            await message.author.send("Hey, it seems you attached more Thumbnails than the limit is!\nNext time, please attach maximum of **2 Thumbnails**.")
+            await message.author.send(content = f"Hey, it seems you attached more Thumbnails in {channel.mention} than allowed!\nPlease make sure to attach at most **2 Thumbnails** next time.")
         except discord.Forbidden:
             pass
 
