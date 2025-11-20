@@ -83,6 +83,9 @@ async def on_ready():
 async def on_message(message: discord.Message):
     if message.author.bot:
         return
+
+    await client.process_commands(message)
+    
     if message.channel.id != THUMBNAILS_ID:
         return
 
@@ -105,7 +108,6 @@ async def on_message(message: discord.Message):
         except discord.Forbidden:
             pass
 
-    await client.process_commands(message)
                                       
 # ----------------------- /role give command  ----------------------- 
 
