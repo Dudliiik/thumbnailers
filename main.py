@@ -72,4 +72,4 @@ if __name__ == "__main__":
         daemon=True
     ).start()
 
-    asyncio.run(main()
+    asyncio.run(main())
