@@ -4,6 +4,7 @@ from discord import app_commands
 from dotenv import load_dotenv
 import os
 import asyncio
+<<<<<<< HEAD
 import json
 from threading import Thread
 from cogs.tickets import CloseTicketView
@@ -15,6 +16,27 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 # ---------------- Discord bot ----------------
+=======
+from threading import Thread
+from flask import Flask
+
+# ---------------------------------------------
+
+OWNER_IDS = {859500303186657300} 
+
+def owner_or_permissions(**perms):
+    async def predicate(interaction: discord.Interaction) -> bool:
+        if interaction.user.id in OWNER_IDS:
+            return True
+        
+        if interaction.guild is None:
+            return False
+        guild_perms = interaction.user.guild_permissions
+        return all(getattr(guild_perms, name, False) == value for name, value in perms.items())
+    return app_commands.check(predicate)
+
+# ---------------------------------------------
+>>>>>>> bf351e6 (A)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -22,6 +44,7 @@ intents.members = True
 
 client = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
+<<<<<<< HEAD
 # --- Dudles perms ---
 OWNER_IDS = {859500303186657300} 
 
@@ -39,12 +62,19 @@ def owner_or_permissions(**perms):
 # --- end owner override ---
 
 # ---------------- Load cogs ----------------
+=======
+# ---------------------------------------------
+
+load_dotenv()
+TOKEN = os.getenv("DISCORD_TOKEN")
+>>>>>>> bf351e6 (A)
 
 async def load_cogs():
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
             await client.load_extension(f"cogs.{filename[:-3]}")
 
+<<<<<<< HEAD
 # ---------------- /shutdown command ----------------
 
 @client.tree.command(
@@ -75,10 +105,17 @@ async def on_ready():
     client.tree.add_command(artist_group)
     client.tree.add_command(roles_group)
 
+=======
+# ---------------------------------------------
+
+@client.event
+async def on_ready():
+>>>>>>> bf351e6 (A)
     synced = await client.tree.sync()
     print(f"Synced commands - {len(synced)}")
 
 
+<<<<<<< HEAD
 @client.event
 async def on_message(message: discord.Message):
     if message.author.bot:
@@ -535,6 +572,11 @@ os.makedirs(TRANSCRIPT_FOLDER, exist_ok=True)
 @app.route("/transcripts/<path:filename>")
 def transcripts(filename):
     return send_from_directory(TRANSCRIPT_FOLDER, filename)
+=======
+# ---------------------------------------------
+
+app = Flask(__name__)
+>>>>>>> bf351e6 (A)
 
 @app.route("/")
 def home():
@@ -544,7 +586,10 @@ def run_web():
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port, debug=False)
                       
+<<<<<<< HEAD
 # ---------------- Run bot + web ----------------
+=======
+>>>>>>> bf351e6 (A)
 
 async def main():
     async with client:
