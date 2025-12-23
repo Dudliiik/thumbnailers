@@ -38,8 +38,10 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 async def load_cogs():
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
-            await client.load_extension(f"cogs.{filename[:-3]}")
-
+            ext = f"cogs.{filename[:-3]}"
+            if ext not in client.extensions:
+                await client.load_extension(ext)
+                
 # ---------------------------------------------
 
 @client.event
@@ -54,22 +56,20 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "Bot is running"
+    return "OK", 200
 
-def run_web():
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port, debug=False)
-                      
-async def start_bot():
+# ---------------------------------------------
+
+async def main():
     await load_cogs()
-    try:
-        await client.start(TOKEN)
-    except discord.HTTPException as e:
-        print(f"Rate limited or HTTP error: {e}. Retrying in 60 seconds...")
-        await asyncio.sleep(60)
-        await start_bot()
+    await client.start(TOKEN)
 
 if __name__ == "__main__":
-    flask_thread = Thread(target=run_web, daemon=True)
-    flask_thread.start()
-    asyncio.run(start_bot())
+    port = int(os.environ.get("PORT", 10000))
+    from threading import Thread
+    Thread(
+        target=lambda: app.run(host="0.0.0.0", port=port, debug=False),
+        daemon=True
+    ).start()
+
+    asyncio.run(main()
