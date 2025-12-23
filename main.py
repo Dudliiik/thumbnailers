@@ -60,13 +60,16 @@ def run_web():
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port, debug=False)
                       
-
-async def main():
-    async with client:
-        await load_cogs()
+async def start_bot():
+    await load_cogs()
+    try:
         await client.start(TOKEN)
+    except discord.HTTPException as e:
+        print(f"Rate limited or HTTP error: {e}. Retrying in 60 seconds...")
+        await asyncio.sleep(60)
+        await start_bot()
 
 if __name__ == "__main__":
     flask_thread = Thread(target=run_web, daemon=True)
     flask_thread.start()
-    asyncio.run(main())
+    asyncio.run(start_bot())
