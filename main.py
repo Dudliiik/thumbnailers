@@ -52,6 +52,7 @@ async def on_ready():
 
 # ---------------------------------------------
 
+
 app = Flask(__name__)
 
 @app.route("/")
@@ -59,17 +60,27 @@ def home():
     return "OK", 200
 
 # ---------------------------------------------
+# START BOTH TOGETHER (SAFE)
+# ---------------------------------------------
+
+async def start():
+    # start flask inside asyncio loop
+    loop = asyncio.get_running_loop()
+    await loop.run_in_executor(
+        None,
+        lambda: app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=False)
+    )
+
+# ---------------------------------------------
+# MAIN
+# ---------------------------------------------
 
 async def main():
-    await load_cogs()
-    await client.start(TOKEN)
+    # start flask
+    asyncio.create_task(start())
+
+    # start discord (ONE login only)
+    await bot.start(TOKEN)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    from threading import Thread
-    Thread(
-        target=lambda: app.run(host="0.0.0.0", port=port, debug=False),
-        daemon=True
-    ).start()
-
-    asyncio.run(main())
+    asyncio.run(main()
