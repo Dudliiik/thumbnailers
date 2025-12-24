@@ -80,7 +80,7 @@ async def main():
     asyncio.create_task(start())
 
     # start discord (ONE login only)
-    await bot.start(TOKEN)
+    await client.start(TOKEN)
 
 if __name__ == "__main__":
     asyncio.run(main()
