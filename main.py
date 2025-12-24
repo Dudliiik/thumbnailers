@@ -46,6 +46,7 @@ async def load_cogs():
 
 @client.event
 async def on_ready():
+    await load_cogs()
     synced = await client.tree.sync()
     print(f"Synced commands - {len(synced)}")
 
