@@ -141,7 +141,6 @@ ARTISTS_INFO = {
         "image": "https://media.discordapp.net/attachments/1380545516873711676/1425120399301152918/IMG_9242.png?ex=68ebb44c&is=68ea62cc&hm=742c429af35c9cb17f66d8eac280a93fc889180a32c02655d20b9433e95c3a76&=&format=webp&quality=lossless&width=1232&height=1232",
         "links": {
             "Portfolio": "https://ninjanmy.carrd.co/",
-            "Behance": "https://www.behance.net/ninjanmy-zbxri",
             "Twitter": "https://x.com/ninjanmy"
         },
         "role": "1102982383571042386"
@@ -299,4 +298,5 @@ class Artist(app_commands.Group):
 # ---------------------------------------------
 
 async def setup(bot):
+
     bot.tree.add_command(Artist())
