@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from main import owner_or_permissions
+from datetime import timedelta
 
 # ---------------------------------------------
 
@@ -76,7 +77,29 @@ async def purge(interaction: discord.Interaction, amount: int):
 
 # ---------------------------------------------
 
+@app_commands.command(
+    name="artistpoll",
+    description="Posts an artist vote poll (optional)",
+)
+@owner_or_permissions(administrator=True)
+async def artistpoll(interaction: discord.Interaction):
+    poll = discord.Poll(
+        question="Vote for an artist role",
+        duration=timedelta(hours=24)
+    )
+
+    poll.add_answer(text="Rookie Artist")
+    poll.add_answer(text="Artist-")
+    poll.add_answer(text="Artist")
+    poll.add_answer(text="Artist+")
+    poll.add_answer(text="Professional Artist")
+
+    await interaction.response.send_message(poll=poll)
+
+# ---------------------------------------------
+
 async def setup(bot):
     bot.tree.add_command(Roles())
     bot.tree.add_command(purge)
     bot.tree.add_command(shutdown)
+    bot.tree.add_command(artistpoll)
