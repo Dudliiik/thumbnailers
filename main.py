@@ -61,8 +61,6 @@ def home():
     return "OK", 200
 
 # ---------------------------------------------
-# START BOTH TOGETHER (SAFE)
-# ---------------------------------------------
 
 async def start():
     # start flask inside asyncio loop
@@ -72,9 +70,6 @@ async def start():
         lambda: app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=False)
     )
 
-# ---------------------------------------------
-# MAIN
-# ---------------------------------------------
 
 async def main():
     # start flask
