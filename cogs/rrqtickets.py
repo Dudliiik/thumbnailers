@@ -12,7 +12,7 @@ class RQReminder(commands.Cog):
         self.bot = bot
         self.pattern = re.compile(r"^role-request-")
         self.required = 5
-        self.delay = 5
+        self.delay = 60 * 60
 
         self.extensions = (".png", ".jpg", ".jpeg", ".webp")
         self.poll_answers = ["Rookie Artist", "Artist-", "Artist", "Artist+", "Professional Artist"]
@@ -186,3 +186,4 @@ class CloseTicket(View):
 
 async def setup(bot):
     await bot.add_cog(RQReminder(bot))
+
