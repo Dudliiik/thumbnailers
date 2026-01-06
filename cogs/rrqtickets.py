@@ -16,7 +16,6 @@ class RQReminder(commands.Cog):
 
         self.extensions = (".png", ".jpg", ".jpeg", ".webp")
         self.poll_answers = ["Rookie Artist", "Artist-", "Artist", "Artist+", "Professional Artist"]
-        self.role_mapping = {"Rookie Artist": "Rookie Artist", "Artist-": "Artist-", "Artist": "Artist", "Artist+": "Artist+", "Professional Artist": "Professional Artist"}
 
         self.active = set()
         self.done = set()
@@ -90,7 +89,7 @@ class RQReminder(commands.Cog):
         if message.author.bot:
             return
 
-        if not isinstance(message.channel, discord.TextChannel):
+        if not isinstance(channel, discord.TextChannel):
             return
 
         if not self.pattern.match(channel.name):
@@ -131,40 +130,10 @@ class RQReminder(commands.Cog):
         for answer in self.poll_answers:
             poll.add_answer(text=answer)
 
-        poll_message = await channel.send(
-            content=f"Applicant: {opener.mention}", poll=poll)
-
-        asyncio.create_task(self.poll_result(poll_message, channel, opener))
+        await channel.send(content=f"Applicant: {opener.mention}", poll=poll)
 
         self.done.add(channel.id)
         self.active.discard(channel.id)
-
-# ---------------------------------------------
-
-    async def poll_result(self, poll_message, channel, opener):
-        await asyncio.sleep(60 * 60 * 24)
-
-        poll = poll_message.poll
-        if poll is None:
-            return
-
-        winner = poll.get_winner()
-        if winner is None:
-            return
-
-        role_name = self.role_mapping.get(winner.text)
-        if role_name is None:
-            return
-
-        role = discord.utils.get(channel.guild.roles, name=role_name)
-        if role is None:
-            return
-
-        try:
-            await opener.add_roles(role)
-            await channel.send(f"{opener.mention} we've given you the **{role.name}** role! Do you have any questions before we close the ticket?", view=CloseTicket(opener))
-        except discord.Forbidden:
-            await channel.send("I don't have permission to assign roles.", view=CloseTicket(opener))
 
 # ---------------------------------------------
 
@@ -175,7 +144,6 @@ class CloseTicket(View):
 
     @discord.ui.button(label="Close", style=discord.ButtonStyle.red)
     async def close(self, interaction, button):
-
         if interaction.user != self.author:
             await interaction.response.send_message("Only the ticket opener can close this.", ephemeral=True)
             return
@@ -186,4 +154,3 @@ class CloseTicket(View):
 
 async def setup(bot):
     await bot.add_cog(RQReminder(bot))
-
